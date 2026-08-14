@@ -7,10 +7,10 @@ export const fetchWorkableJobs = async (companySlug) => {
     const data = await response.json();
     const jobsList = data.jobs || [];
     return jobsList.map(job => ({
-      id: `wrk_${companySlug}_${job.shortcode || job.id}`,
+      id: `wrk_${companySlug}_${job.shortcode || job.id || Math.random().toString(36).substr(2, 9)}`,
       title: job.title,
-      company: companySlug,
-      location: job.location ? `${job.location.city || ''}, ${job.location.country || ''}`.trim() : (job.telecommute ? 'Remote' : 'Not specified'),
+      company: data.name || (companySlug.charAt(0).toUpperCase() + companySlug.slice(1)),
+      location: job.location ? `${job.location.city || ''}, ${job.location.country || ''}`.replace(/^, /, '').trim() : (job.telecommute ? 'Remote' : 'Remote / Hybrid'),
       description: job.description || '',
       url: job.url || `https://apply.workable.com/${companySlug}/j/${job.shortcode}/`,
       source: 'workable'

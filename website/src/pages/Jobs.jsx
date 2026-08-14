@@ -16,14 +16,17 @@ const POPULAR_LOCATIONS = [
 const fallbackJobs = [
   { id: 1, role: 'Frontend Engineer (New Grad)', company: 'Stripe', location: 'San Francisco, CA', type: 'On-site', source: 'greenhouse', url: 'https://boards.greenhouse.io/stripe' },
   { id: 2, role: 'Software Engineer I', company: 'Spotify', location: 'New York, NY', type: 'Hybrid', source: 'lever', url: 'https://jobs.lever.co/spotify' },
-  { id: 3, role: 'Frontend Engineer', company: 'Ramp', location: 'New York, NY', type: 'Hybrid', source: 'ashby', url: 'https://jobs.ashbyhq.com/ramp' },
-  { id: 4, role: 'React Developer', company: 'Linear', location: 'Remote', type: 'Remote', source: 'ashby', url: 'https://jobs.ashbyhq.com/linear' },
-  { id: 5, role: 'Full Stack Developer', company: 'Twitch', location: 'Remote', type: 'Remote', source: 'lever', url: 'https://jobs.lever.co/twitch' },
-  { id: 6, role: 'UI Engineer Intern', company: 'Figma', location: 'San Francisco, CA', type: 'On-site', source: 'greenhouse', url: 'https://boards.greenhouse.io/figma' },
-  { id: 7, role: 'Full Stack Developer', company: 'Sentry', location: 'San Francisco, CA', type: 'Hybrid', source: 'workable', url: 'https://apply.workable.com/sentry/' },
-  { id: 8, role: 'Junior Web Developer', company: 'Notion', location: 'New York, NY', type: 'Hybrid', source: 'greenhouse', url: 'https://boards.greenhouse.io/notion' },
-  { id: 9, role: 'Software Engineer', company: 'Postman', location: 'Bangalore, India', type: 'Hybrid', source: 'ashby', url: 'https://jobs.ashbyhq.com/postman' },
-  { id: 10, role: 'Frontend Developer', company: 'Netlify', location: 'Remote', type: 'Remote', source: 'lever', url: 'https://jobs.lever.co/netlify' },
+  { id: 3, role: 'React Frontend Engineer', company: 'Linear', location: 'Remote', type: 'Remote', source: 'ashby', url: 'https://jobs.ashbyhq.com/linear' },
+  { id: 4, role: 'Software Engineer (Product)', company: 'Ramp', location: 'New York, NY', type: 'Hybrid', source: 'ashby', url: 'https://jobs.ashbyhq.com/ramp' },
+  { id: 5, role: 'Frontend Infrastructure Intern', company: 'Replit', location: 'San Francisco, CA', type: 'On-site', source: 'ashby', url: 'https://jobs.ashbyhq.com/replit' },
+  { id: 6, role: 'Software Engineer I (Frontend)', company: 'Postman', location: 'Bangalore, India', type: 'Hybrid', source: 'ashby', url: 'https://jobs.ashbyhq.com/postman' },
+  { id: 7, role: 'Full Stack Engineer', company: 'Sentry', location: 'San Francisco, CA', type: 'Hybrid', source: 'workable', url: 'https://apply.workable.com/sentry/' },
+  { id: 8, role: 'Frontend Engineer (Design System)', company: 'InVision', location: 'Remote', type: 'Remote', source: 'workable', url: 'https://apply.workable.com/invision/' },
+  { id: 9, role: 'Web Developer Intern', company: 'Swiggy', location: 'Bangalore, India', type: 'Hybrid', source: 'workable', url: 'https://apply.workable.com/swiggy/' },
+  { id: 10, role: 'Full Stack Developer', company: 'Twitch', location: 'Remote', type: 'Remote', source: 'lever', url: 'https://jobs.lever.co/twitch' },
+  { id: 11, role: 'UI Engineer Intern', company: 'Figma', location: 'San Francisco, CA', type: 'On-site', source: 'greenhouse', url: 'https://boards.greenhouse.io/figma' },
+  { id: 12, role: 'Junior Web Developer', company: 'Notion', location: 'New York, NY', type: 'Hybrid', source: 'greenhouse', url: 'https://boards.greenhouse.io/notion' },
+  { id: 13, role: 'Frontend Developer', company: 'Netlify', location: 'Remote', type: 'Remote', source: 'lever', url: 'https://jobs.lever.co/netlify' }
 ];
 
 const getSourceBadge = (source = '') => {
@@ -45,7 +48,7 @@ const getSourceBadge = (source = '') => {
 export default function Jobs() {
   const [jobs, setJobs] = useState(fallbackJobs);
   const [search, setSearch] = useState('');
-  const [location, setLocation] = useState('Bangalore, India');
+  const [location, setLocation] = useState('All');
   const [remoteOnly, setRemoteOnly] = useState(false);
   const [customLocInput, setCustomLocInput] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
@@ -131,11 +134,11 @@ export default function Jobs() {
 
   // Option A Prefilled Search URLs with dynamic Location filter
   const searchKeyword = search.trim() || 'Software Engineer';
-  const effectiveLocation = remoteOnly ? 'Remote' : (location || '');
-  const cleanCity = effectiveLocation.split(',')[0].trim().toLowerCase().replace(/\s+/g, '-');
+  const effectiveLocation = remoteOnly ? 'Remote' : (location && location !== 'All' ? location : '');
+  const cleanCity = effectiveLocation ? effectiveLocation.split(',')[0].trim().toLowerCase().replace(/\s+/g, '-') : '';
 
-  const linkedinSearchUrl = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(searchKeyword)}&location=${encodeURIComponent(effectiveLocation)}`;
-  const naukriSearchUrl = effectiveLocation
+  const linkedinSearchUrl = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(searchKeyword)}${effectiveLocation ? `&location=${encodeURIComponent(effectiveLocation)}` : ''}`;
+  const naukriSearchUrl = cleanCity
     ? `https://www.naukri.com/${searchKeyword.toLowerCase().replace(/\s+/g, '-')}-jobs-in-${cleanCity}`
     : `https://www.naukri.com/${searchKeyword.toLowerCase().replace(/\s+/g, '-')}-jobs`;
 
@@ -218,6 +221,16 @@ export default function Jobs() {
           </div>
 
           <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setLocation('All')}
+              className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all ${
+                location === 'All' && !remoteOnly
+                  ? 'bg-primary-600 border-primary-500 text-white shadow-md shadow-primary-500/30'
+                  : 'bg-surface-800/80 border-white/10 text-gray-300 hover:border-primary-400'
+              }`}
+            >
+              All Locations
+            </button>
             {POPULAR_LOCATIONS.map((loc) => (
               <button
                 key={loc}
@@ -261,7 +274,7 @@ export default function Jobs() {
             </button>
           </div>
 
-          {location && (
+          {location && location !== 'All' && (
             <div className="text-xs text-gray-400">
               Filtering location: <span className="text-primary-400 font-semibold">{effectiveLocation}</span>
             </div>
@@ -288,7 +301,7 @@ export default function Jobs() {
       {(activeFilter === 'All' || activeFilter.includes('LinkedIn') || activeFilter.includes('Naukri')) && (
         <div className="mb-8">
           <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-            <span className="text-accent-400">⚡</span> Quick Launch External Searches ({effectiveLocation})
+            <span className="text-accent-400">⚡</span> Quick Launch External Searches {effectiveLocation ? `(${effectiveLocation})` : ''}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* LinkedIn Search Card */}
@@ -299,7 +312,7 @@ export default function Jobs() {
                     <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">LinkedIn Jobs</span>
                     <span className="badge-primary bg-blue-500/20 text-blue-300 border-blue-500/40">Extension Autofill Ready</span>
                   </div>
-                  <h3 className="text-lg font-bold text-white">Search "{searchKeyword}" in {effectiveLocation} on LinkedIn</h3>
+                  <h3 className="text-lg font-bold text-white">Search "{searchKeyword}" {effectiveLocation ? `in ${effectiveLocation}` : ''} on LinkedIn</h3>
                   <p className="text-gray-400 text-xs mt-1">Launches LinkedIn Easy Apply results pre-filled with role & location.</p>
                 </div>
                 <a 
@@ -321,7 +334,7 @@ export default function Jobs() {
                     <span className="text-xs font-bold text-sky-400 uppercase tracking-wider">Naukri.com Jobs</span>
                     <span className="badge-primary bg-sky-500/20 text-sky-300 border-sky-500/40">Extension Autofill Ready</span>
                   </div>
-                  <h3 className="text-lg font-bold text-white">Search "{searchKeyword}" in {effectiveLocation} on Naukri</h3>
+                  <h3 className="text-lg font-bold text-white">Search "{searchKeyword}" {effectiveLocation ? `in ${effectiveLocation}` : ''} on Naukri</h3>
                   <p className="text-gray-400 text-xs mt-1">Launches Naukri portal with pre-filled role & city criteria.</p>
                 </div>
                 <a 
@@ -340,43 +353,57 @@ export default function Jobs() {
 
       {/* Live Greenhouse, Lever, Ashby & Workable Job Grid */}
       <div>
-        <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-          <span className="text-primary-400">💼</span> Live ATS Postings (Greenhouse, Lever, Ashby, Workable)
+        <h2 className="text-lg font-bold text-white mb-4 flex items-center justify-between">
+          <span className="flex items-center gap-2">
+            <span className="text-primary-400">💼</span> Live ATS Postings (Greenhouse, Lever, Ashby, Workable)
+          </span>
+          <span className="text-xs text-gray-400 font-normal">Showing {filteredJobs.length} openings</span>
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredJobs.map((job, i) => (
-            <div key={job.id || i} className="card-glass p-5 flex flex-col h-full animate-slide-up" style={{ animationDelay: `${(i % 4) * 100}ms` }}>
-              <div className="flex justify-between items-start mb-4">
-                <div className="w-10 h-10 rounded-lg bg-surface-800 border border-white/10 flex items-center justify-center font-bold text-lg text-white">
-                  {(job.company || 'C').charAt(0).toUpperCase()}
+
+        {filteredJobs.length === 0 ? (
+          <div className="card-glass p-12 text-center text-gray-400">
+            <div className="text-4xl mb-3">🔍</div>
+            <p className="text-white font-semibold">No live postings found for "{activeFilter}" with current filters.</p>
+            <button onClick={() => { setActiveFilter('All'); setLocation('All'); setSearch(''); }} className="btn-secondary text-xs py-2 px-4 mt-4">
+              Reset All Filters
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredJobs.map((job, i) => (
+              <div key={job.id || i} className="card-glass p-5 flex flex-col h-full animate-slide-up" style={{ animationDelay: `${(i % 4) * 100}ms` }}>
+                <div className="flex justify-between items-start mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-surface-800 border border-white/10 flex items-center justify-center font-bold text-lg text-white">
+                    {(job.company || 'C').charAt(0).toUpperCase()}
+                  </div>
+                  {getSourceBadge(job.source)}
                 </div>
-                {getSourceBadge(job.source)}
+                
+                <h3 className="font-bold text-white text-lg leading-tight mb-1">{job.role || job.title}</h3>
+                <div className="text-primary-400 font-medium text-sm mb-4 capitalize">{job.company}</div>
+                
+                <div className="mt-auto space-y-2 mb-6">
+                  <div className="flex items-center text-sm text-gray-400 gap-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    {job.location || 'Remote'}
+                  </div>
+                  <div className="flex items-center text-sm text-gray-400 gap-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                    {job.type || (job.location?.includes('Remote') ? 'Remote' : 'Full-time')}
+                  </div>
+                </div>
+                
+                <button 
+                  onClick={() => handleApplyClick(job)}
+                  className="btn-secondary w-full py-2 hover:bg-primary-600 hover:border-primary-500 hover:text-white transition-all flex items-center justify-center gap-2 text-center text-sm font-semibold"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                  Auto Apply via Extension
+                </button>
               </div>
-              
-              <h3 className="font-bold text-white text-lg leading-tight mb-1">{job.role || job.title}</h3>
-              <div className="text-primary-400 font-medium text-sm mb-4 capitalize">{job.company}</div>
-              
-              <div className="mt-auto space-y-2 mb-6">
-                <div className="flex items-center text-sm text-gray-400 gap-2">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                  {job.location || 'Remote'}
-                </div>
-                <div className="flex items-center text-sm text-gray-400 gap-2">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                  {job.type || (job.location?.includes('Remote') ? 'Remote' : 'Full-time')}
-                </div>
-              </div>
-              
-              <button 
-                onClick={() => handleApplyClick(job)}
-                className="btn-secondary w-full py-2 hover:bg-primary-600 hover:border-primary-500 hover:text-white transition-all flex items-center justify-center gap-2 text-center text-sm font-semibold"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                Auto Apply via Extension
-              </button>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Auto Apply Modal */}

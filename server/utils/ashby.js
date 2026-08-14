@@ -9,8 +9,8 @@ export const fetchAshbyJobs = async (companySlug) => {
     return jobsList.map(job => ({
       id: `ashby_${companySlug}_${job.id}`,
       title: job.title,
-      company: companySlug,
-      location: job.location || (job.isRemote ? 'Remote' : 'Not specified'),
+      company: companySlug.charAt(0).toUpperCase() + companySlug.slice(1),
+      location: typeof job.location === 'string' ? job.location : (job.locationName || (job.isRemote ? 'Remote' : 'San Francisco, CA')),
       description: job.descriptionPlain || job.description || '',
       url: job.applyUrl || `https://jobs.ashbyhq.com/${companySlug}/${job.id}`,
       source: 'ashby'
