@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Jobs from './pages/Jobs';
 import Applications from './pages/Applications';
+import { ExtensionGuide, LegalPage } from './pages/InfoModalPage';
 
 function App() {
   return (
@@ -20,6 +21,15 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/jobs" element={<Jobs />} />
           <Route path="/applications" element={<Applications />} />
+          
+          {/* Helper & Legal routes */}
+          <Route path="/extension" element={<ExtensionGuide />} />
+          <Route path="/privacy" element={<LegalPage title="Privacy Policy" type="privacy" />} />
+          <Route path="/terms" element={<LegalPage title="Terms of Service" type="terms" />} />
+          <Route path="/security" element={<LegalPage title="Security Disclosures" type="security" />} />
+          
+          {/* Catch-all fallback */}
+          <Route path="*" element={<Landing />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

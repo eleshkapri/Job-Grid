@@ -17,6 +17,10 @@ export default function Jobs() {
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
   const [loading, setLoading] = useState(false);
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [toast, setToast] = useState('');
+
+  const token = localStorage.getItem('token');
 
   useEffect(() => {
     async function fetchJobs() {
@@ -25,7 +29,7 @@ export default function Jobs() {
         const res = await fetch('/api/jobs');
         if (res.ok) {
           const data = await res.json();
-          if (data && data.length > 0) {
+          if (Array.isArray(data) && data.length > 0) {
             setJobs(data);
           }
         }
@@ -38,10 +42,41 @@ export default function Jobs() {
     fetchJobs();
   }, []);
 
+  const handleApplyClick = (job) => {
+    setSelectedJob(job);
+  };
+
+  const trackJobApplication = async (job) => {
+    try {
+      if (token) {
+        await fetch('/api/applications', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            job_title: job.role || job.title,
+            company: job.company,
+            source: job.source,
+            url: job.url || job.applyUrl
+          })
+        });
+      }
+    } catch (err) {
+      console.log('Track application local fallback');
+    }
+
+    setToast(`Applied to ${job.role || job.title} at ${job.company}! Added to tracker.`);
+    setTimeout(() => setToast(''), 4000);
+    setSelectedJob(null);
+  };
+
   const filters = ['All', 'Greenhouse', 'Lever', 'Remote', 'On-site'];
 
   const filteredJobs = jobs.filter(job => {
-    const matchesSearch = (job.role || job.title || '').toLowerCase().includes(search.toLowerCase()) ||
+    const roleText = job.role || job.title || '';
+    const matchesSearch = roleText.toLowerCase().includes(search.toLowerCase()) ||
                           (job.company || '').toLowerCase().includes(search.toLowerCase()) ||
                           (job.location || '').toLowerCase().includes(search.toLowerCase());
     
@@ -58,9 +93,15 @@ export default function Jobs() {
 
   return (
     <DashboardLayout>
+      {toast && (
+        <div className="fixed top-20 right-6 z-50 bg-primary-600 text-white px-5 py-3 rounded-xl shadow-2xl border border-primary-400 animate-slide-down flex items-center gap-2">
+          <span>✓</span> {toast}
+        </div>
+      )}
+
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white">Find Jobs</h1>
-        <p className="text-gray-400 mt-2">Discover and auto-apply to roles aggregated across job portals.</p>
+        <p className="text-gray-400 mt-2">Discover and auto-apply to roles aggregated across top tech job portals.</p>
       </div>
 
       <div className="card-glass p-4 mb-8 sticky top-20 z-10">
@@ -121,18 +162,68 @@ export default function Jobs() {
               </div>
             </div>
             
-            <a 
-              href={job.url || job.applyUrl || 'https://linkedin.com'} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="btn-secondary w-full py-2 hover:bg-primary-600 hover:border-primary-500 hover:text-white transition-all flex items-center justify-center gap-2 text-center"
+            <button 
+              onClick={() => handleApplyClick(job)}
+              className="btn-secondary w-full py-2 hover:bg-primary-600 hover:border-primary-500 hover:text-white transition-all flex items-center justify-center gap-2 text-center text-sm font-semibold"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
               Auto Apply via Extension
-            </a>
+            </button>
           </div>
         ))}
       </div>
+
+      {/* Auto Apply Modal */}
+      {selectedJob && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="card-glass w-full max-w-lg p-6 bg-surface-900 border-white/10 animate-scale-in">
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-primary-600 flex items-center justify-center font-bold text-white text-lg">
+                  {selectedJob.company.charAt(0)}
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white">{selectedJob.role || selectedJob.title}</h3>
+                  <p className="text-sm text-primary-400">{selectedJob.company}</p>
+                </div>
+              </div>
+              <button onClick={() => setSelectedJob(null)} className="text-gray-400 hover:text-white text-xl">✕</button>
+            </div>
+
+            <div className="space-y-4 my-6 bg-white/[0.03] p-4 rounded-xl border border-white/5">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-400">Portal Source:</span>
+                <span className="badge-primary">{selectedJob.source}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-400">Location:</span>
+                <span className="text-white font-medium">{selectedJob.location}</span>
+              </div>
+              <div className="text-xs text-gray-400 pt-2 border-t border-white/5">
+                💡 <strong className="text-gray-300">How AutoApply Works:</strong> Opening the job page will launch the portal. Your installed <strong>Job Grid Assist Extension</strong> will detect the form and automatically fill your profile details and resume!
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 justify-end">
+              <button 
+                onClick={() => setSelectedJob(null)}
+                className="btn-secondary py-2.5 px-4 text-sm"
+              >
+                Cancel
+              </button>
+              <a
+                href={selectedJob.url || selectedJob.applyUrl || 'https://linkedin.com'}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackJobApplication(selectedJob)}
+                className="btn-primary py-2.5 px-6 text-sm font-semibold flex items-center justify-center gap-2 shadow-lg shadow-primary-500/25"
+              >
+                Launch Portal & Track Application 🚀
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }
