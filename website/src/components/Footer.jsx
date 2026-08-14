@@ -7,8 +7,10 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8">
           <div className="col-span-1 md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center font-bold text-white text-lg">A</div>
-              <span className="font-bold text-xl text-white tracking-tight">AutoApply</span>
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary-600 to-accent-400 flex items-center justify-center font-bold text-white shadow-lg shadow-primary-500/20">
+                J
+              </div>
+              <span className="font-bold text-xl text-white tracking-tight">Job Grid</span>
             </Link>
             <p className="text-gray-400 text-sm mb-6">
               Apply to jobs everywhere, automatically. Your job search on autopilot.
@@ -64,7 +66,7 @@ export default function Footer() {
         
         <div className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-500 text-sm">
-            &copy; {new Date().getFullYear()} AutoApply. All rights reserved.
+            &copy; {new Date().getFullYear()} Job Grid. All rights reserved.
           </p>
           <div className="mt-4 md:mt-0">
             <span className="text-gray-500 text-sm flex items-center gap-1">

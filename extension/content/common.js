@@ -89,13 +89,13 @@ function simulateFileUpload(fileInput, blob, fileName) {
   fileInput.dispatchEvent(new Event('change', { bubbles: true }));
 }
 
-// Create floating AutoApply button
+// Create floating Job Grid button
 function createFloatingButton(onClick) {
-  if (document.getElementById('autoapply-floating-btn')) return;
+  if (document.getElementById('jobgrid-floating-btn')) return;
 
   const btn = document.createElement('button');
-  btn.id = 'autoapply-floating-btn';
-  btn.textContent = 'AutoApply Fill';
+  btn.id = 'jobgrid-floating-btn';
+  btn.textContent = 'Job Grid Fill';
   btn.style.cssText = `
     position: fixed;
     bottom: 20px;

@@ -13,7 +13,7 @@ if (!fs.existsSync(dataDir)) {
 }
 
 // Database file path
-const dbPath = path.join(dataDir, 'autoapply.db');
+const dbPath = path.join(dataDir, 'jobgrid.db');
 
 // Initialize Database connection
 let db;

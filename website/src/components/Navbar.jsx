@@ -12,8 +12,10 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-2">
             <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center font-bold text-white text-lg">A</div>
-              <span className="font-bold text-xl text-white tracking-tight">AutoApply</span>
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary-600 to-accent-400 flex items-center justify-center font-bold text-white shadow-lg shadow-primary-500/20">
+                J
+              </div>
+              <span className="font-bold text-xl text-white tracking-tight">Job Grid</span>
             </Link>
           </div>
           

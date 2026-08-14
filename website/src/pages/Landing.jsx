@@ -56,7 +56,7 @@ export default function Landing() {
         {/* Features Section */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center mb-16 animate-slide-up stagger-2">
-            <h2 className="text-3xl font-bold text-white">Why Choose AutoApply?</h2>
+            <h2 className="text-3xl font-bold text-white">Why Choose Job Grid?</h2>
             <p className="mt-4 text-gray-400">Everything you need to land your first job, faster.</p>
           </div>
           
@@ -131,7 +131,7 @@ export default function Landing() {
           <div className="card-glass p-12 relative overflow-hidden bg-gradient-to-br from-surface-900 to-primary-900/20 border-primary-500/20">
             <div className="relative z-10 animate-slide-up">
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Ready to stop manually applying?</h2>
-              <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">Join 5,000+ freshers who are using AutoApply to land their dream jobs 10x faster.</p>
+              <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">Join 5,000+ freshers who are using Job Grid to land their dream jobs 10x faster.</p>
               <Link to="/signup" className="btn-primary text-lg px-8 py-4 inline-block shadow-[0_0_30px_rgba(99,102,241,0.5)]">
                 Create Your Free Account
               </Link>

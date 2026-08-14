@@ -1,5 +1,5 @@
 {
-  "name": "autoapply-server",
+  "name": "job-grid-server",
   "version": "1.0.0",
   "type": "module",
   "main": "index.js",

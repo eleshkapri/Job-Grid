@@ -39,7 +39,7 @@ async function handleAutofill() {
   try {
     const response = await chrome.runtime.sendMessage({ type: 'GET_PROFILE' });
     if (!response.success || !response.profile) {
-      showNotification('Please log in to AutoApply first', 'error');
+      showNotification('Please log in to Job Grid first', 'error');
       return;
     }
 

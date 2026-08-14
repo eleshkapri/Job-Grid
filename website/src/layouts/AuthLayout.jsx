@@ -10,8 +10,10 @@ export default function AuthLayout({ children }) {
       <div className="w-full max-w-md z-10 animate-slide-up">
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2 mb-2">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center font-bold text-white text-xl shadow-lg shadow-primary-500/30">A</div>
-            <span className="font-bold text-2xl tracking-tight">AutoApply</span>
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-tr from-primary-600 to-accent-400 flex items-center justify-center font-bold text-white shadow-lg shadow-primary-500/20 text-xl">
+              J
+            </div>
+            <span className="font-bold text-2xl tracking-tight">Job Grid</span>
           </Link>
           <p className="text-gray-400 mt-2 text-sm">Your job search on autopilot</p>
         </div>
