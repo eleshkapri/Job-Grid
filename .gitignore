@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Production builds
+dist/
+build/
+
+# Environment variables
+.env
+
+# SQLite Data and Uploads
+server/data/
+server/uploads/
+*.db
+
+# System files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,19 @@
+{
+  "name": "autoapply-server",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "cors": "^2.8.5",
+    "bcryptjs": "^3.0.2",
+    "jsonwebtoken": "^9.0.2",
+    "better-sqlite3": "^11.9.1",
+    "multer": "^2.0.0",
+    "dotenv": "^16.5.0"
+  }
+}

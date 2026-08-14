@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "AutoApply Assist",
+  "version": "1.0.0",
+  "description": "Auto-fill job application forms on LinkedIn and Naukri with your AutoApply profile",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": [
+    "https://*.linkedin.com/*",
+    "https://*.naukri.com/*",
+    "http://localhost:3001/*"
+  ],
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.linkedin.com/jobs/*"],
+      "js": ["content/common.js", "content/linkedin-autofill.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://*.naukri.com/*"],
+      "js": ["content/common.js", "content/naukri-autofill.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.svg",
+      "48": "icons/icon48.svg",
+      "128": "icons/icon128.svg"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.svg",
+    "48": "icons/icon48.svg",
+    "128": "icons/icon128.svg"
+  }
+}
