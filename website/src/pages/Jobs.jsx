@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import DashboardLayout from '../layouts/DashboardLayout';
 
 const POPULAR_LOCATIONS = [
@@ -26,28 +26,6 @@ const fallbackJobs = [
   { id: 10, role: 'Full Stack Engineer (Fresher)', company: 'Swiggy', location: 'Bangalore, India', type: 'On-site', source: 'Lever', url: 'https://jobs.lever.co/swiggy' },
 ];
 
-function useHideOnScroll() {
-  const [visible, setVisible] = useState(true);
-  const lastScrollY = useRef(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      if (currentScrollY > lastScrollY.current && currentScrollY > 150) {
-        setVisible(false); // scrolling down -> hide search bar
-      } else {
-        setVisible(true); // scrolling up -> show search bar
-      }
-      lastScrollY.current = currentScrollY;
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  return visible;
-}
-
 export default function Jobs() {
   const [jobs, setJobs] = useState(fallbackJobs);
   const [search, setSearch] = useState('');
@@ -59,7 +37,6 @@ export default function Jobs() {
   const [selectedJob, setSelectedJob] = useState(null);
   const [toast, setToast] = useState('');
 
-  const isFilterVisible = useHideOnScroll();
   const token = localStorage.getItem('token');
 
   // Load candidate profile default preferred_location
@@ -184,12 +161,8 @@ export default function Jobs() {
         <p className="text-gray-400 mt-2">Filter by role & preferred location, or launch pre-filled searches on LinkedIn & Naukri.</p>
       </div>
 
-      {/* Main Search & Location Filter Bar — Fully Opaque Opaque BG + Auto-Hide on Scroll Down */}
-      <div 
-        className={`sticky top-16 z-30 bg-surface-900/95 backdrop-blur-2xl p-5 mb-8 rounded-2xl border border-white/10 shadow-2xl space-y-4 transition-all duration-300 ${
-          isFilterVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'
-        }`}
-      >
+      {/* Main Search & Location Filter Bar — Clean Natural Flow (Zero Overlap) */}
+      <div className="relative bg-surface-900 p-6 mb-8 rounded-2xl border border-white/10 shadow-xl space-y-4">
         <div className="flex flex-col md:flex-row gap-4 items-center">
           <div className="w-full relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
