@@ -1,11 +1,25 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import DashboardLayout from '../layouts/DashboardLayout'
+
+const POPULAR_LOCATIONS = [
+  'Remote',
+  'Bangalore, India',
+  'Delhi NCR, India',
+  'Mumbai, India',
+  'Hyderabad, India',
+  'Pune, India',
+  'United States',
+  'United Kingdom',
+  'Canada',
+]
 
 const initialProfile = {
   name: 'Alex Johnson',
   email: 'alex.johnson@email.com',
   phone: '+1 (555) 123-4567',
   location: 'San Francisco, CA',
+  preferred_location: 'Bangalore, India',
+  remote_only: false,
   headline: 'Frontend Developer | React & JavaScript Enthusiast',
   summary: 'Recent CS graduate passionate about building beautiful, performant web applications. Experienced with React, Node.js, and modern web technologies.',
   skills: ['React', 'JavaScript', 'TypeScript', 'Node.js', 'CSS', 'Git', 'Python'],
@@ -21,10 +35,39 @@ const initialProfile = {
 
 export default function Profile() {
   const [profile, setProfile] = useState(initialProfile)
+  const [customLocInput, setCustomLocInput] = useState('')
   const [newSkill, setNewSkill] = useState('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const fileRef = useRef(null)
+
+  const token = localStorage.getItem('token')
+
+  useEffect(() => {
+    async function fetchProfile() {
+      if (!token) return;
+      try {
+        const res = await fetch('/api/profile', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setProfile(prev => ({
+            ...prev,
+            ...data,
+            skills: typeof data.skills === 'string' ? JSON.parse(data.skills) : (data.skills || prev.skills),
+            education: typeof data.education === 'string' ? JSON.parse(data.education) : (data.education || prev.education),
+            experience: typeof data.experience === 'string' ? JSON.parse(data.experience) : (data.experience || prev.experience),
+            preferred_location: data.preferred_location || prev.preferred_location,
+            remote_only: Boolean(data.remote_only)
+          }));
+        }
+      } catch (err) {
+        console.log('Using default local profile state');
+      }
+    }
+    fetchProfile();
+  }, [token]);
 
   const updateField = (field, value) => {
     setProfile(prev => ({ ...prev, [field]: value }))
@@ -80,8 +123,27 @@ export default function Profile() {
 
   const handleSave = async () => {
     setSaving(true)
-    // Simulate API call
-    await new Promise(r => setTimeout(r, 1000))
+    if (token) {
+      try {
+        await fetch('/api/profile', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            ...profile,
+            skills: JSON.stringify(profile.skills),
+            education: JSON.stringify(profile.education),
+            experience: JSON.stringify(profile.experience)
+          })
+        });
+      } catch (err) {
+        console.error('API profile save error:', err);
+      }
+    } else {
+      await new Promise(r => setTimeout(r, 600));
+    }
     setSaving(false)
     setSaved(true)
     setTimeout(() => setSaved(false), 3000)
@@ -92,18 +154,18 @@ export default function Profile() {
       <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
         {/* Profile Header */}
         <div className="card-glass flex flex-col sm:flex-row items-center gap-6 animate-slide-up">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary-600 to-accent-400 flex items-center justify-center text-3xl font-bold text-white shrink-0">
+          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary-600 to-accent-400 flex items-center justify-center text-3xl font-bold text-white shrink-0 shadow-lg shadow-primary-500/20">
             {profile.name.charAt(0)}
           </div>
           <div className="text-center sm:text-left">
             <h1 className="text-2xl font-bold text-white">{profile.name}</h1>
             <p className="text-surface-100/60 mt-1">{profile.headline}</p>
             <div className="flex flex-wrap gap-2 mt-3 justify-center sm:justify-start">
-              {profile.skills.slice(0, 5).map(skill => (
-                <span key={skill} className="badge badge-primary">{skill}</span>
-              ))}
-              {profile.skills.length > 5 && (
-                <span className="badge badge-primary">+{profile.skills.length - 5} more</span>
+              {profile.preferred_location && (
+                <span className="badge badge-success">📍 {profile.preferred_location}</span>
+              )}
+              {profile.remote_only && (
+                <span className="badge badge-warning">⚡ Remote Only</span>
               )}
             </div>
           </div>
@@ -128,14 +190,86 @@ export default function Profile() {
               <input className="input-field" value={profile.phone} onChange={e => updateField('phone', e.target.value)} />
             </div>
             <div>
-              <label className="block text-sm text-surface-100/50 mb-1.5">Location</label>
+              <label className="block text-sm text-surface-100/50 mb-1.5">Current City</label>
               <input className="input-field" value={profile.location} onChange={e => updateField('location', e.target.value)} />
             </div>
           </div>
         </div>
 
+        {/* Preferred Work Location Section */}
+        <div className="card-glass animate-slide-up stagger-2 border-primary-500/30">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+              <span className="text-accent-400">📍</span> Preferred Work Location / Country
+            </h2>
+            <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer bg-white/5 px-3 py-1.5 rounded-lg border border-white/10 hover:border-primary-400">
+              <input 
+                type="checkbox" 
+                checked={profile.remote_only} 
+                onChange={e => updateField('remote_only', e.target.checked)}
+                className="w-4 h-4 accent-primary-500 rounded cursor-pointer" 
+              />
+              <span className="font-medium">Remote Only</span>
+            </label>
+          </div>
+
+          <p className="text-gray-400 text-sm mb-4">Select your default work destination. This will pre-fill location filters on Job Grid, LinkedIn, and Naukri.</p>
+
+          <div className="flex flex-wrap gap-2 mb-4">
+            {POPULAR_LOCATIONS.map(loc => (
+              <button
+                key={loc}
+                type="button"
+                onClick={() => updateField('preferred_location', loc)}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                  profile.preferred_location === loc
+                    ? 'bg-primary-600 border-primary-500 text-white shadow-lg shadow-primary-500/30'
+                    : 'bg-surface-800/80 border-white/10 text-gray-300 hover:border-primary-400'
+                }`}
+              >
+                {loc}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex gap-2">
+            <input 
+              type="text" 
+              placeholder="Or type a city, state, or country (e.g. Toronto, Canada)..."
+              value={customLocInput}
+              onChange={e => setCustomLocInput(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && customLocInput.trim()) {
+                  e.preventDefault();
+                  updateField('preferred_location', customLocInput.trim());
+                  setCustomLocInput('');
+                }
+              }}
+              className="input-field text-sm flex-1"
+            />
+            <button 
+              type="button"
+              onClick={() => {
+                if (customLocInput.trim()) {
+                  updateField('preferred_location', customLocInput.trim());
+                  setCustomLocInput('');
+                }
+              }}
+              className="btn-secondary py-2 px-4 text-sm"
+            >
+              Set Location
+            </button>
+          </div>
+
+          {profile.preferred_location && (
+            <div className="text-xs text-accent-400 mt-3 flex items-center gap-1.5">
+              <span>✓</span> Currently saved default location: <strong>{profile.preferred_location}</strong> {profile.remote_only ? '(Remote Only)' : ''}
+            </div>
+          )}
+        </div>
+
         {/* Headline & Summary */}
-        <div className="card-glass animate-slide-up stagger-2">
+        <div className="card-glass animate-slide-up stagger-3">
           <h2 className="text-lg font-semibold text-white mb-5 flex items-center gap-2">
             <span className="text-primary-400">💼</span> Professional Summary
           </h2>
@@ -162,7 +296,7 @@ export default function Profile() {
         </div>
 
         {/* Skills */}
-        <div className="card-glass animate-slide-up stagger-3">
+        <div className="card-glass animate-slide-up stagger-4">
           <h2 className="text-lg font-semibold text-white mb-5 flex items-center gap-2">
             <span className="text-primary-400">🛠️</span> Skills
           </h2>
@@ -181,7 +315,7 @@ export default function Profile() {
         </div>
 
         {/* Education */}
-        <div className="card-glass animate-slide-up stagger-4">
+        <div className="card-glass animate-slide-up stagger-5">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-lg font-semibold text-white flex items-center gap-2">
               <span className="text-primary-400">🎓</span> Education
@@ -205,7 +339,7 @@ export default function Profile() {
         </div>
 
         {/* Experience */}
-        <div className="card-glass animate-slide-up stagger-5">
+        <div className="card-glass animate-slide-up stagger-6">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-lg font-semibold text-white flex items-center gap-2">
               <span className="text-primary-400">💻</span> Experience

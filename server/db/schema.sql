@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS profiles (
   user_id INTEGER UNIQUE REFERENCES users(id),
   phone TEXT,
   location TEXT,
+  preferred_location TEXT,
+  remote_only INTEGER DEFAULT 0,
   headline TEXT,
   summary TEXT,
   skills TEXT,

@@ -40,18 +40,18 @@ router.get('/', authenticateToken, (req, res) => {
 // PUT /api/profile
 router.put('/', authenticateToken, (req, res) => {
   try {
-    const { phone, location, headline, summary, skills, experience, education, linkedin_url, portfolio_url } = req.body;
+    const { phone, location, preferred_location, remote_only, headline, summary, skills, experience, education, linkedin_url, portfolio_url } = req.body;
     
     db.prepare(`
       UPDATE profiles 
-      SET phone = ?, location = ?, headline = ?, summary = ?, 
-          skills = ?, experience = ?, education = ?, 
-          linkedin_url = ?, portfolio_url = ?, updated_at = CURRENT_TIMESTAMP
+      SET phone = ?, location = ?, preferred_location = ?, remote_only = ?, 
+          headline = ?, summary = ?, skills = ?, experience = ?, 
+          education = ?, linkedin_url = ?, portfolio_url = ?, updated_at = CURRENT_TIMESTAMP
       WHERE user_id = ?
     `).run(
-      phone || null, location || null, headline || null, summary || null, 
-      skills || null, experience || null, education || null, 
-      linkedin_url || null, portfolio_url || null, req.user.id
+      phone || null, location || null, preferred_location || null, remote_only ? 1 : 0,
+      headline || null, summary || null, skills || null, experience || null, 
+      education || null, linkedin_url || null, portfolio_url || null, req.user.id
     );
     
     const updatedProfile = db.prepare('SELECT * FROM profiles WHERE user_id = ?').get(req.user.id);

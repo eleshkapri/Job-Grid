@@ -19,12 +19,21 @@ const dbPath = path.join(dataDir, 'jobgrid.db');
 let db;
 try {
   db = new Database(dbPath);
-  db.pragma('journal_mode = WAL'); // Recommended for better performance
+  db.pragma('journal_mode = WAL');
   
   // Read and execute schema.sql
   const schemaPath = path.join(__dirname, 'schema.sql');
   const schema = fs.readFileSync(schemaPath, 'utf8');
   db.exec(schema);
+
+  // Safe migrations for preferred_location & remote_only
+  try {
+    db.exec(`ALTER TABLE profiles ADD COLUMN preferred_location TEXT;`);
+  } catch (e) { /* Column already exists */ }
+  try {
+    db.exec(`ALTER TABLE profiles ADD COLUMN remote_only INTEGER DEFAULT 0;`);
+  } catch (e) { /* Column already exists */ }
+
   console.log('Database initialized successfully.');
 } catch (error) {
   console.error('Failed to initialize database:', error);

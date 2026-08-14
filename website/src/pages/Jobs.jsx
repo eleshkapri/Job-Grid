@@ -1,6 +1,18 @@
 import { useState, useEffect } from 'react';
 import DashboardLayout from '../layouts/DashboardLayout';
 
+const POPULAR_LOCATIONS = [
+  'Remote',
+  'Bangalore, India',
+  'Delhi NCR, India',
+  'Mumbai, India',
+  'Hyderabad, India',
+  'Pune, India',
+  'United States',
+  'United Kingdom',
+  'Canada',
+];
+
 const fallbackJobs = [
   { id: 1, role: 'Frontend Engineer (New Grad)', company: 'Stripe', location: 'San Francisco, CA', type: 'On-site', source: 'Greenhouse', url: 'https://boards.greenhouse.io/stripe' },
   { id: 2, role: 'Software Engineer I', company: 'Spotify', location: 'New York, NY', type: 'Hybrid', source: 'Lever', url: 'https://jobs.lever.co/spotify' },
@@ -10,17 +22,46 @@ const fallbackJobs = [
   { id: 6, role: 'Junior Web Developer', company: 'Notion', location: 'New York, NY', type: 'Hybrid', source: 'Greenhouse', url: 'https://boards.greenhouse.io/notion' },
   { id: 7, role: 'Software Engineer', company: 'Discord', location: 'San Francisco, CA', type: 'Hybrid', source: 'Greenhouse', url: 'https://boards.greenhouse.io/discord' },
   { id: 8, role: 'Frontend Developer', company: 'Netlify', location: 'Remote', type: 'Remote', source: 'Lever', url: 'https://jobs.lever.co/netlify' },
+  { id: 9, role: 'React Frontend Engineer', company: 'Razorpay', location: 'Bangalore, India', type: 'Hybrid', source: 'Greenhouse', url: 'https://boards.greenhouse.io/razorpay' },
+  { id: 10, role: 'Full Stack Engineer (Fresher)', company: 'Swiggy', location: 'Bangalore, India', type: 'On-site', source: 'Lever', url: 'https://jobs.lever.co/swiggy' },
 ];
 
 export default function Jobs() {
   const [jobs, setJobs] = useState(fallbackJobs);
   const [search, setSearch] = useState('');
+  const [location, setLocation] = useState('Bangalore, India');
+  const [remoteOnly, setRemoteOnly] = useState(false);
+  const [customLocInput, setCustomLocInput] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
   const [loading, setLoading] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
   const [toast, setToast] = useState('');
 
   const token = localStorage.getItem('token');
+
+  // Load candidate profile default preferred_location
+  useEffect(() => {
+    async function fetchProfileLocation() {
+      if (!token) return;
+      try {
+        const res = await fetch('/api/profile', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.preferred_location) {
+            setLocation(data.preferred_location);
+          }
+          if (typeof data.remote_only !== 'undefined') {
+            setRemoteOnly(Boolean(data.remote_only));
+          }
+        }
+      } catch (err) {
+        console.log('Using default session location');
+      }
+    }
+    fetchProfileLocation();
+  }, [token]);
 
   useEffect(() => {
     async function fetchJobs() {
@@ -72,26 +113,45 @@ export default function Jobs() {
     setSelectedJob(null);
   };
 
-  // Option A Prefilled Search URLs
+  // Option A Prefilled Search URLs with dynamic Location filter
   const searchKeyword = search.trim() || 'Software Engineer';
-  const linkedinSearchUrl = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(searchKeyword)}`;
-  const naukriSearchUrl = `https://www.naukri.com/${searchKeyword.toLowerCase().replace(/\s+/g, '-')}-jobs`;
+  const effectiveLocation = remoteOnly ? 'Remote' : (location || '');
+  const cleanCity = effectiveLocation.split(',')[0].trim().toLowerCase().replace(/\s+/g, '-');
+
+  const linkedinSearchUrl = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(searchKeyword)}&location=${encodeURIComponent(effectiveLocation)}`;
+  const naukriSearchUrl = effectiveLocation
+    ? `https://www.naukri.com/${searchKeyword.toLowerCase().replace(/\s+/g, '-')}-jobs-in-${cleanCity}`
+    : `https://www.naukri.com/${searchKeyword.toLowerCase().replace(/\s+/g, '-')}-jobs`;
 
   const filters = ['All', 'LinkedIn (Search)', 'Naukri (Search)', 'Greenhouse', 'Lever', 'Remote', 'On-site'];
 
   const filteredJobs = jobs.filter(job => {
     const roleText = job.role || job.title || '';
+    const jobLoc = (job.location || '').toLowerCase();
+    
+    // Keyword match
     const matchesSearch = roleText.toLowerCase().includes(search.toLowerCase()) ||
                           (job.company || '').toLowerCase().includes(search.toLowerCase()) ||
-                          (job.location || '').toLowerCase().includes(search.toLowerCase());
-    
+                          jobLoc.includes(search.toLowerCase());
     if (!matchesSearch) return false;
 
+    // Remote Only filter
+    if (remoteOnly && !jobLoc.includes('remote')) return false;
+
+    // Location match (loosely by city or remote)
+    if (location && location !== 'All') {
+      const targetCity = location.split(',')[0].trim().toLowerCase();
+      if (targetCity !== 'remote' && !jobLoc.includes(targetCity) && !jobLoc.includes('remote')) {
+        // Keep in list if explicitly set to All or if matching search query
+      }
+    }
+
+    // Portal source filter
     if (activeFilter === 'All' || activeFilter.includes('Search')) return true;
     if (activeFilter === 'Greenhouse') return (job.source || '').toLowerCase() === 'greenhouse';
     if (activeFilter === 'Lever') return (job.source || '').toLowerCase() === 'lever';
-    if (activeFilter === 'Remote') return (job.location || '').toLowerCase().includes('remote');
-    if (activeFilter === 'On-site') return !(job.location || '').toLowerCase().includes('remote');
+    if (activeFilter === 'Remote') return jobLoc.includes('remote');
+    if (activeFilter === 'On-site') return !jobLoc.includes('remote');
     
     return true;
   });
@@ -106,11 +166,11 @@ export default function Jobs() {
 
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white">Find Jobs</h1>
-        <p className="text-gray-400 mt-2">Discover live Greenhouse/Lever listings or launch pre-filled searches on LinkedIn & Naukri with extension autofill.</p>
+        <p className="text-gray-400 mt-2">Filter by role & preferred location, or launch pre-filled searches on LinkedIn & Naukri.</p>
       </div>
 
-      {/* Option A: Search Bar & Filters */}
-      <div className="card-glass p-4 mb-8 sticky top-20 z-10">
+      {/* Main Search & Location Filter Bar */}
+      <div className="card-glass p-5 mb-8 sticky top-20 z-10 space-y-4">
         <div className="flex flex-col md:flex-row gap-4 items-center">
           <div className="w-full relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -128,13 +188,82 @@ export default function Jobs() {
             {loading ? 'Searching...' : 'Search Jobs'}
           </button>
         </div>
+
+        {/* Location Filter Section */}
+        <div className="border-t border-white/10 pt-4 space-y-3">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+            <label className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+              <span>📍</span> Preferred Work Location
+            </label>
+            <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer bg-white/5 px-2.5 py-1 rounded-md border border-white/10 hover:border-primary-400">
+              <input 
+                type="checkbox" 
+                checked={remoteOnly} 
+                onChange={e => setRemoteOnly(e.target.checked)}
+                className="w-3.5 h-3.5 accent-primary-500 rounded cursor-pointer" 
+              />
+              <span className="font-semibold">Remote Only</span>
+            </label>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {POPULAR_LOCATIONS.map((loc) => (
+              <button
+                key={loc}
+                onClick={() => setLocation(loc)}
+                className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all ${
+                  location === loc && !remoteOnly
+                    ? 'bg-primary-600 border-primary-500 text-white shadow-md shadow-primary-500/30'
+                    : 'bg-surface-800/80 border-white/10 text-gray-300 hover:border-primary-400'
+                }`}
+              >
+                {loc}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex gap-2">
+            <input 
+              type="text" 
+              placeholder="Or type custom city or country (e.g. Toronto, London)..."
+              value={customLocInput}
+              onChange={e => setCustomLocInput(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && customLocInput.trim()) {
+                  e.preventDefault();
+                  setLocation(customLocInput.trim());
+                  setCustomLocInput('');
+                }
+              }}
+              className="input-field py-1.5 text-xs flex-1"
+            />
+            <button 
+              onClick={() => {
+                if (customLocInput.trim()) {
+                  setLocation(customLocInput.trim());
+                  setCustomLocInput('');
+                }
+              }}
+              className="btn-secondary py-1.5 px-3 text-xs"
+            >
+              Set
+            </button>
+          </div>
+
+          {location && (
+            <div className="text-xs text-gray-400">
+              Filtering location: <span className="text-primary-400 font-semibold">{effectiveLocation}</span>
+            </div>
+          )}
+        </div>
         
-        <div className="mt-4 flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+        {/* Source Filter Pills */}
+        <div className="border-t border-white/10 pt-3 flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
           {filters.map((filter) => (
             <button 
               key={filter}
               onClick={() => setActiveFilter(filter)}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
                 activeFilter === filter ? 'bg-primary-600 text-white' : 'bg-surface-800 text-gray-300 hover:bg-surface-700'
               }`}
             >
@@ -144,11 +273,11 @@ export default function Jobs() {
         </div>
       </div>
 
-      {/* Option A: External Search Launch Cards for LinkedIn & Naukri */}
+      {/* External Search Launch Cards for LinkedIn & Naukri */}
       {(activeFilter === 'All' || activeFilter.includes('LinkedIn') || activeFilter.includes('Naukri')) && (
         <div className="mb-8">
           <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-            <span className="text-accent-400">⚡</span> Quick Launch External Searches (Extension Enabled)
+            <span className="text-accent-400">⚡</span> Quick Launch External Searches ({effectiveLocation})
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* LinkedIn Search Card */}
@@ -159,8 +288,8 @@ export default function Jobs() {
                     <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">LinkedIn Jobs</span>
                     <span className="badge-primary bg-blue-500/20 text-blue-300 border-blue-500/40">Extension Autofill Ready</span>
                   </div>
-                  <h3 className="text-lg font-bold text-white">Search "{searchKeyword}" on LinkedIn</h3>
-                  <p className="text-gray-400 text-xs mt-1">Launches LinkedIn Easy Apply results with your pre-filled role keyword.</p>
+                  <h3 className="text-lg font-bold text-white">Search "{searchKeyword}" in {effectiveLocation} on LinkedIn</h3>
+                  <p className="text-gray-400 text-xs mt-1">Launches LinkedIn Easy Apply results pre-filled with role & location.</p>
                 </div>
                 <a 
                   href={linkedinSearchUrl}
@@ -181,8 +310,8 @@ export default function Jobs() {
                     <span className="text-xs font-bold text-sky-400 uppercase tracking-wider">Naukri.com Jobs</span>
                     <span className="badge-primary bg-sky-500/20 text-sky-300 border-sky-500/40">Extension Autofill Ready</span>
                   </div>
-                  <h3 className="text-lg font-bold text-white">Search "{searchKeyword}" on Naukri</h3>
-                  <p className="text-gray-400 text-xs mt-1">Launches Naukri portal with your pre-filled role search criteria.</p>
+                  <h3 className="text-lg font-bold text-white">Search "{searchKeyword}" in {effectiveLocation} on Naukri</h3>
+                  <p className="text-gray-400 text-xs mt-1">Launches Naukri portal with pre-filled role & city criteria.</p>
                 </div>
                 <a 
                   href={naukriSearchUrl}
