@@ -7,7 +7,7 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Jobs from './pages/Jobs';
 import Applications from './pages/Applications';
-import { ExtensionGuide, LegalPage } from './pages/InfoModalPage';
+import { ExtensionGuide, TermsPage, SecurityPage, ContactPage, LegalPage } from './pages/InfoModalPage';
 
 function App() {
   return (
@@ -22,11 +22,12 @@ function App() {
           <Route path="/jobs" element={<Jobs />} />
           <Route path="/applications" element={<Applications />} />
           
-          {/* Helper & Legal routes */}
+          {/* Footer & Helper routes */}
           <Route path="/extension" element={<ExtensionGuide />} />
-          <Route path="/privacy" element={<LegalPage title="Privacy Policy" type="privacy" />} />
-          <Route path="/terms" element={<LegalPage title="Terms of Service" type="terms" />} />
-          <Route path="/security" element={<LegalPage title="Security Disclosures" type="security" />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/security" element={<SecurityPage />} />
+          <Route path="/privacy" element={<LegalPage title="Privacy Policy" />} />
           
           {/* Catch-all fallback */}
           <Route path="*" element={<Landing />} />

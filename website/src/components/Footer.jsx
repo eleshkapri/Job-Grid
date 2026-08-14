@@ -45,7 +45,7 @@ export default function Footer() {
               <li><Link to="/" className="text-gray-400 hover:text-white transition-colors text-sm">About Us</Link></li>
               <li><Link to="/jobs" className="text-gray-400 hover:text-white transition-colors text-sm">Job Openings</Link></li>
               <li><Link to="/extension" className="text-gray-400 hover:text-white transition-colors text-sm">Extension Setup</Link></li>
-              <li><a href="mailto:support@jobgrid.dev" className="text-gray-400 hover:text-white transition-colors text-sm">Contact Support</a></li>
+              <li><Link to="/contact" className="text-gray-400 hover:text-white transition-colors text-sm">Contact Support</Link></li>
             </ul>
           </div>
           
