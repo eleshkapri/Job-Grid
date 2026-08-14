@@ -1,6 +1,8 @@
 import express from 'express';
 import { fetchGreenhouseJobs } from '../utils/greenhouse.js';
 import { fetchLeverJobs } from '../utils/lever.js';
+import { fetchAshbyJobs } from '../utils/ashby.js';
+import { fetchWorkableJobs } from '../utils/workable.js';
 
 const router = express.Router();
 
@@ -13,11 +15,20 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 const fetchAllJobs = async () => {
   const greenhouseTokens = ['stripe', 'figma', 'notion', 'discord', 'reddit'];
   const leverSlugs = ['spotify', 'twitch', 'netlify'];
+  const ashbySlugs = ['ramp', 'linear', 'vanta', 'postman'];
+  const workableSlugs = ['invision', 'sentry'];
 
   const greenhousePromises = greenhouseTokens.map(token => fetchGreenhouseJobs(token));
   const leverPromises = leverSlugs.map(slug => fetchLeverJobs(slug));
+  const ashbyPromises = ashbySlugs.map(slug => fetchAshbyJobs(slug));
+  const workablePromises = workableSlugs.map(slug => fetchWorkableJobs(slug));
 
-  const allResults = await Promise.all([...greenhousePromises, ...leverPromises]);
+  const allResults = await Promise.all([
+    ...greenhousePromises, 
+    ...leverPromises, 
+    ...ashbyPromises, 
+    ...workablePromises
+  ]);
   return allResults.flat();
 };
 
@@ -37,15 +48,15 @@ router.get('/', async (req, res) => {
     let filteredJobs = jobsCache.data;
 
     if (source) {
-      filteredJobs = filteredJobs.filter(job => job.source === source);
+      filteredJobs = filteredJobs.filter(job => (job.source || '').toLowerCase() === source.toLowerCase());
     }
     if (location) {
-      filteredJobs = filteredJobs.filter(job => job.location.toLowerCase().includes(location.toLowerCase()));
+      filteredJobs = filteredJobs.filter(job => (job.location || '').toLowerCase().includes(location.toLowerCase()));
     }
     if (search) {
       filteredJobs = filteredJobs.filter(job => 
-        job.title.toLowerCase().includes(search.toLowerCase()) || 
-        job.company.toLowerCase().includes(search.toLowerCase())
+        (job.title || '').toLowerCase().includes(search.toLowerCase()) || 
+        (job.company || '').toLowerCase().includes(search.toLowerCase())
       );
     }
 
@@ -59,7 +70,6 @@ router.get('/', async (req, res) => {
 // GET /api/jobs/:id
 router.get('/:id', async (req, res) => {
   try {
-    // Basic single job detail lookup from cache
     if (Date.now() - jobsCache.timestamp > CACHE_TTL || jobsCache.data.length === 0) {
       const allJobs = await fetchAllJobs();
       jobsCache = {

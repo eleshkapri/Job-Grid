@@ -14,17 +14,33 @@ const POPULAR_LOCATIONS = [
 ];
 
 const fallbackJobs = [
-  { id: 1, role: 'Frontend Engineer (New Grad)', company: 'Stripe', location: 'San Francisco, CA', type: 'On-site', source: 'Greenhouse', url: 'https://boards.greenhouse.io/stripe' },
-  { id: 2, role: 'Software Engineer I', company: 'Spotify', location: 'New York, NY', type: 'Hybrid', source: 'Lever', url: 'https://jobs.lever.co/spotify' },
-  { id: 3, role: 'React Developer', company: 'Vercel', location: 'Remote', type: 'Remote', source: 'Greenhouse', url: 'https://boards.greenhouse.io/vercel' },
-  { id: 4, role: 'Full Stack Developer', company: 'Twitch', location: 'Remote', type: 'Remote', source: 'Lever', url: 'https://jobs.lever.co/twitch' },
-  { id: 5, role: 'UI Engineer Intern', company: 'Figma', location: 'San Francisco, CA', type: 'On-site', source: 'Greenhouse', url: 'https://boards.greenhouse.io/figma' },
-  { id: 6, role: 'Junior Web Developer', company: 'Notion', location: 'New York, NY', type: 'Hybrid', source: 'Greenhouse', url: 'https://boards.greenhouse.io/notion' },
-  { id: 7, role: 'Software Engineer', company: 'Discord', location: 'San Francisco, CA', type: 'Hybrid', source: 'Greenhouse', url: 'https://boards.greenhouse.io/discord' },
-  { id: 8, role: 'Frontend Developer', company: 'Netlify', location: 'Remote', type: 'Remote', source: 'Lever', url: 'https://jobs.lever.co/netlify' },
-  { id: 9, role: 'React Frontend Engineer', company: 'Razorpay', location: 'Bangalore, India', type: 'Hybrid', source: 'Greenhouse', url: 'https://boards.greenhouse.io/razorpay' },
-  { id: 10, role: 'Full Stack Engineer (Fresher)', company: 'Swiggy', location: 'Bangalore, India', type: 'On-site', source: 'Lever', url: 'https://jobs.lever.co/swiggy' },
+  { id: 1, role: 'Frontend Engineer (New Grad)', company: 'Stripe', location: 'San Francisco, CA', type: 'On-site', source: 'greenhouse', url: 'https://boards.greenhouse.io/stripe' },
+  { id: 2, role: 'Software Engineer I', company: 'Spotify', location: 'New York, NY', type: 'Hybrid', source: 'lever', url: 'https://jobs.lever.co/spotify' },
+  { id: 3, role: 'Frontend Engineer', company: 'Ramp', location: 'New York, NY', type: 'Hybrid', source: 'ashby', url: 'https://jobs.ashbyhq.com/ramp' },
+  { id: 4, role: 'React Developer', company: 'Linear', location: 'Remote', type: 'Remote', source: 'ashby', url: 'https://jobs.ashbyhq.com/linear' },
+  { id: 5, role: 'Full Stack Developer', company: 'Twitch', location: 'Remote', type: 'Remote', source: 'lever', url: 'https://jobs.lever.co/twitch' },
+  { id: 6, role: 'UI Engineer Intern', company: 'Figma', location: 'San Francisco, CA', type: 'On-site', source: 'greenhouse', url: 'https://boards.greenhouse.io/figma' },
+  { id: 7, role: 'Full Stack Developer', company: 'Sentry', location: 'San Francisco, CA', type: 'Hybrid', source: 'workable', url: 'https://apply.workable.com/sentry/' },
+  { id: 8, role: 'Junior Web Developer', company: 'Notion', location: 'New York, NY', type: 'Hybrid', source: 'greenhouse', url: 'https://boards.greenhouse.io/notion' },
+  { id: 9, role: 'Software Engineer', company: 'Postman', location: 'Bangalore, India', type: 'Hybrid', source: 'ashby', url: 'https://jobs.ashbyhq.com/postman' },
+  { id: 10, role: 'Frontend Developer', company: 'Netlify', location: 'Remote', type: 'Remote', source: 'lever', url: 'https://jobs.lever.co/netlify' },
 ];
+
+const getSourceBadge = (source = '') => {
+  const src = source.toLowerCase();
+  switch (src) {
+    case 'greenhouse':
+      return <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">Greenhouse</span>;
+    case 'lever':
+      return <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/40">Lever</span>;
+    case 'ashby':
+      return <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/40 font-bold">Ashby</span>;
+    case 'workable':
+      return <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40">Workable</span>;
+    default:
+      return <span className="badge-primary">{source}</span>;
+  }
+};
 
 export default function Jobs() {
   const [jobs, setJobs] = useState(fallbackJobs);
@@ -123,11 +139,12 @@ export default function Jobs() {
     ? `https://www.naukri.com/${searchKeyword.toLowerCase().replace(/\s+/g, '-')}-jobs-in-${cleanCity}`
     : `https://www.naukri.com/${searchKeyword.toLowerCase().replace(/\s+/g, '-')}-jobs`;
 
-  const filters = ['All', 'LinkedIn (Search)', 'Naukri (Search)', 'Greenhouse', 'Lever', 'Remote', 'On-site'];
+  const filters = ['All', 'LinkedIn (Search)', 'Naukri (Search)', 'Greenhouse', 'Lever', 'Ashby', 'Workable', 'Remote', 'On-site'];
 
   const filteredJobs = jobs.filter(job => {
     const roleText = job.role || job.title || '';
     const jobLoc = (job.location || '').toLowerCase();
+    const src = (job.source || '').toLowerCase();
     
     // Keyword match
     const matchesSearch = roleText.toLowerCase().includes(search.toLowerCase()) ||
@@ -140,8 +157,10 @@ export default function Jobs() {
 
     // Portal source filter
     if (activeFilter === 'All' || activeFilter.includes('Search')) return true;
-    if (activeFilter === 'Greenhouse') return (job.source || '').toLowerCase() === 'greenhouse';
-    if (activeFilter === 'Lever') return (job.source || '').toLowerCase() === 'lever';
+    if (activeFilter === 'Greenhouse') return src === 'greenhouse';
+    if (activeFilter === 'Lever') return src === 'lever';
+    if (activeFilter === 'Ashby') return src === 'ashby';
+    if (activeFilter === 'Workable') return src === 'workable';
     if (activeFilter === 'Remote') return jobLoc.includes('remote');
     if (activeFilter === 'On-site') return !jobLoc.includes('remote');
     
@@ -158,10 +177,10 @@ export default function Jobs() {
 
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white">Find Jobs</h1>
-        <p className="text-gray-400 mt-2">Filter by role & preferred location, or launch pre-filled searches on LinkedIn & Naukri.</p>
+        <p className="text-gray-400 mt-2">Live postings aggregated from Greenhouse, Lever, Ashby, and Workable + prefilled searches on LinkedIn & Naukri.</p>
       </div>
 
-      {/* Main Search & Location Filter Bar — Clean Natural Flow (Zero Overlap) */}
+      {/* Main Search & Location Filter Bar */}
       <div className="relative bg-surface-900 p-6 mb-8 rounded-2xl border border-white/10 shadow-xl space-y-4">
         <div className="flex flex-col md:flex-row gap-4 items-center">
           <div className="w-full relative">
@@ -319,23 +338,23 @@ export default function Jobs() {
         </div>
       )}
 
-      {/* Live Greenhouse & Lever Job Grid */}
+      {/* Live Greenhouse, Lever, Ashby & Workable Job Grid */}
       <div>
         <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-          <span className="text-primary-400">💼</span> Live ATS Postings (Greenhouse & Lever)
+          <span className="text-primary-400">💼</span> Live ATS Postings (Greenhouse, Lever, Ashby, Workable)
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredJobs.map((job, i) => (
             <div key={job.id || i} className="card-glass p-5 flex flex-col h-full animate-slide-up" style={{ animationDelay: `${(i % 4) * 100}ms` }}>
               <div className="flex justify-between items-start mb-4">
                 <div className="w-10 h-10 rounded-lg bg-surface-800 border border-white/10 flex items-center justify-center font-bold text-lg text-white">
-                  {(job.company || 'C').charAt(0)}
+                  {(job.company || 'C').charAt(0).toUpperCase()}
                 </div>
-                <span className="badge-primary">{job.source || 'Portal'}</span>
+                {getSourceBadge(job.source)}
               </div>
               
               <h3 className="font-bold text-white text-lg leading-tight mb-1">{job.role || job.title}</h3>
-              <div className="text-primary-400 font-medium text-sm mb-4">{job.company}</div>
+              <div className="text-primary-400 font-medium text-sm mb-4 capitalize">{job.company}</div>
               
               <div className="mt-auto space-y-2 mb-6">
                 <div className="flex items-center text-sm text-gray-400 gap-2">
@@ -367,11 +386,11 @@ export default function Jobs() {
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-primary-600 flex items-center justify-center font-bold text-white text-lg">
-                  {selectedJob.company.charAt(0)}
+                  {(selectedJob.company || 'C').charAt(0).toUpperCase()}
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-white">{selectedJob.role || selectedJob.title}</h3>
-                  <p className="text-sm text-primary-400">{selectedJob.company}</p>
+                  <p className="text-sm text-primary-400 capitalize">{selectedJob.company}</p>
                 </div>
               </div>
               <button onClick={() => setSelectedJob(null)} className="text-gray-400 hover:text-white text-xl">✕</button>
@@ -380,7 +399,7 @@ export default function Jobs() {
             <div className="space-y-4 my-6 bg-white/[0.03] p-4 rounded-xl border border-white/5">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-400">Portal Source:</span>
-                <span className="badge-primary">{selectedJob.source}</span>
+                <div>{getSourceBadge(selectedJob.source)}</div>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-400">Location:</span>
