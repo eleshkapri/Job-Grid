@@ -1,17 +1,30 @@
 import jwt from 'jsonwebtoken';
 
+const JWT_SECRET = process.env.JWT_SECRET || 'jobgrid-dev-secure-secret-key-2026';
+
 export const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Extract token from "Bearer TOKEN"
-
-  if (!token) {
+  if (!authHeader || typeof authHeader !== 'string' || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Authentication required' });
   }
 
-  jwt.verify(token, process.env.JWT_SECRET || 'autoapply-dev-secret-key-2024', (err, user) => {
+  const token = authHeader.split(' ')[1];
+  if (!token || token.trim() === '') {
+    return res.status(401).json({ error: 'Invalid authentication token' });
+  }
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) {
-      return res.status(401).json({ error: 'Invalid or expired token' });
+      if (err.name === 'TokenExpiredError') {
+        return res.status(401).json({ error: 'Session expired. Please log in again.' });
+      }
+      return res.status(401).json({ error: 'Invalid or revoked token' });
     }
+    
+    if (!user || !user.id) {
+      return res.status(401).json({ error: 'Invalid payload in authentication token' });
+    }
+
     req.user = user;
     next();
   });

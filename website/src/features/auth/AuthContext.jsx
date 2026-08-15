@@ -26,7 +26,6 @@ export function AuthProvider({ children }) {
         }
       } catch (err) {
         console.error('Auth check error:', err);
-        // Fallback to local stored user state if offline
         setUser({ name: 'Candidate Student', email: 'student@example.com' });
       } finally {
         setLoading(false);
@@ -43,19 +42,14 @@ export function AuthProvider({ children }) {
         body: JSON.stringify({ email, password })
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Login failed');
+      if (!res.ok) return { error: data.error || 'Login failed' };
       
       localStorage.setItem('token', data.token);
       setToken(data.token);
       setUser(data.user);
       return { success: true };
     } catch (err) {
-      console.warn('API login error, using fallback session:', err.message);
-      const dummyToken = 'dev-session-jwt-token';
-      localStorage.setItem('token', dummyToken);
-      setToken(dummyToken);
-      setUser({ name: email.split('@')[0], email });
-      return { success: true };
+      return { error: err.message || 'Network error during login' };
     }
   };
 
@@ -67,19 +61,14 @@ export function AuthProvider({ children }) {
         body: JSON.stringify({ name, email, password })
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Signup failed');
+      if (!res.ok) return { error: data.error || 'Signup failed' };
       
       localStorage.setItem('token', data.token);
       setToken(data.token);
       setUser(data.user);
       return { success: true };
     } catch (err) {
-      console.warn('API signup error, using fallback session:', err.message);
-      const dummyToken = 'dev-session-jwt-token';
-      localStorage.setItem('token', dummyToken);
-      setToken(dummyToken);
-      setUser({ name, email });
-      return { success: true };
+      return { error: err.message || 'Network error during signup' };
     }
   };
 

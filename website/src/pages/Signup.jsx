@@ -8,22 +8,35 @@ export default function Signup() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { signup } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      alert("Passwords don't match");
+    setError('');
+
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long.');
       return;
     }
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
     setLoading(true);
     try {
-      await signup(name, email, password);
-      navigate('/dashboard');
+      const res = await signup(name, email, password);
+      if (res && res.error) {
+        setError(res.error);
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
-      console.error(err);
+      setError(err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -32,6 +45,13 @@ export default function Signup() {
   return (
     <AuthLayout>
       <h2 className="text-2xl font-bold text-white mb-6 text-center">Create your account</h2>
+      
+      {error && (
+        <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-medium animate-slide-down">
+          ⚠️ {error}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-1">Full Name</label>
@@ -56,10 +76,11 @@ export default function Signup() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">Password</label>
+          <label className="block text-sm font-medium text-gray-300 mb-1">Password (Min 8 characters)</label>
           <input
             type="password"
             required
+            minLength={8}
             className="input-field"
             placeholder="••••••••"
             value={password}
@@ -71,6 +92,7 @@ export default function Signup() {
           <input
             type="password"
             required
+            minLength={8}
             className="input-field"
             placeholder="••••••••"
             value={confirmPassword}
@@ -78,7 +100,7 @@ export default function Signup() {
           />
         </div>
         
-        <button type="submit" disabled={loading} className="btn-primary w-full mt-6 py-3">
+        <button type="submit" disabled={loading} className="btn-primary w-full mt-6 py-3 shadow-lg shadow-primary-500/25">
           {loading ? 'Creating Account...' : 'Create Account'}
         </button>
       </form>

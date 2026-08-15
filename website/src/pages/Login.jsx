@@ -6,18 +6,24 @@ import { useAuth } from '../features/auth/AuthContext';
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     setLoading(true);
     try {
-      await login(email, password);
-      navigate('/dashboard');
+      const res = await login(email, password);
+      if (res && res.error) {
+        setError(res.error);
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
-      console.error(err);
+      setError(err.message || 'Invalid email or password. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -26,6 +32,13 @@ export default function Login() {
   return (
     <AuthLayout>
       <h2 className="text-2xl font-bold text-white mb-6 text-center">Welcome back</h2>
+      
+      {error && (
+        <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-medium animate-slide-down">
+          ⚠️ {error}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-1">Email address</label>
@@ -56,11 +69,11 @@ export default function Login() {
             <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-400">Remember me</label>
           </div>
           <div className="text-sm">
-            <a href="#" className="font-medium text-primary-400 hover:text-primary-300">Forgot password?</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); setError('Password reset instructions will be sent to your email.'); }} className="font-medium text-primary-400 hover:text-primary-300">Forgot password?</a>
           </div>
         </div>
         
-        <button type="submit" disabled={loading} className="btn-primary w-full mt-6 py-3">
+        <button type="submit" disabled={loading} className="btn-primary w-full mt-6 py-3 shadow-lg shadow-primary-500/25">
           {loading ? 'Signing in...' : 'Sign In'}
         </button>
       </form>

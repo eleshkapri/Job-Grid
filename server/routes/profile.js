@@ -1,13 +1,22 @@
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
+import crypto from 'crypto';
 import db from '../db/setup.js';
 import { authenticateToken } from '../middleware/auth.js';
 import fs from 'fs';
 
 const router = express.Router();
 
-// Setup multer for file uploads
+const ALLOWED_MIME_TYPES = [
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+];
+
+const ALLOWED_EXTENSIONS = ['.pdf', '.doc', '.docx'];
+
+// Setup secure multer for file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const uploadDir = 'uploads/';
@@ -17,11 +26,23 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
+    const safeExt = path.extname(file.originalname).toLowerCase();
+    const randomName = crypto.randomBytes(16).toString('hex');
+    cb(null, `resume-${req.user.id}-${randomName}${safeExt}`);
   }
 });
-const upload = multer({ storage: storage });
+
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB max limit
+  fileFilter: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (!ALLOWED_EXTENSIONS.includes(ext) || !ALLOWED_MIME_TYPES.includes(file.mimetype)) {
+      return cb(new Error('Invalid file format. Only PDF, DOC, and DOCX files are allowed.'));
+    }
+    cb(null, true);
+  }
+});
 
 // GET /api/profile
 router.get('/', authenticateToken, (req, res) => {
@@ -49,9 +70,18 @@ router.put('/', authenticateToken, (req, res) => {
           education = ?, linkedin_url = ?, portfolio_url = ?, updated_at = CURRENT_TIMESTAMP
       WHERE user_id = ?
     `).run(
-      phone || null, location || null, preferred_location || null, remote_only ? 1 : 0,
-      headline || null, summary || null, skills || null, experience || null, 
-      education || null, linkedin_url || null, portfolio_url || null, req.user.id
+      phone ? String(phone).trim() : null, 
+      location ? String(location).trim() : null, 
+      preferred_location ? String(preferred_location).trim() : null, 
+      remote_only ? 1 : 0,
+      headline ? String(headline).trim() : null, 
+      summary ? String(summary).trim() : null, 
+      skills ? (typeof skills === 'string' ? skills : JSON.stringify(skills)) : null, 
+      experience ? (typeof experience === 'string' ? experience : JSON.stringify(experience)) : null, 
+      education ? (typeof education === 'string' ? education : JSON.stringify(education)) : null, 
+      linkedin_url ? String(linkedin_url).trim() : null, 
+      portfolio_url ? String(portfolio_url).trim() : null, 
+      req.user.id
     );
     
     const updatedProfile = db.prepare('SELECT * FROM profiles WHERE user_id = ?').get(req.user.id);
@@ -63,20 +93,26 @@ router.put('/', authenticateToken, (req, res) => {
 });
 
 // POST /api/profile/resume
-router.post('/resume', authenticateToken, upload.single('resume'), (req, res) => {
-  try {
+router.post('/resume', authenticateToken, (req, res) => {
+  upload.single('resume')(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'File size exceeds maximum allowed limit of 5MB.' });
+      }
+      return res.status(400).json({ error: err.message });
+    } else if (err) {
+      return res.status(400).json({ error: err.message });
+    }
+
     if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
+      return res.status(400).json({ error: 'No resume file provided.' });
     }
     
     const resumePath = req.file.path;
     db.prepare('UPDATE profiles SET resume_path = ?, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?').run(resumePath, req.user.id);
     
     res.json({ message: 'Resume uploaded successfully', resume_path: resumePath });
-  } catch (error) {
-    console.error('Upload resume error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+  });
 });
 
 export default router;
