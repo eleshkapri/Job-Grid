@@ -137,18 +137,18 @@ export default function Landing() {
                 initial={{ opacity: 0, scale: 0.85 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                className="lg:col-span-5 relative flex items-center justify-center min-h-[540px] lg:min-h-[640px]"
+                className="lg:col-span-5 relative flex items-center justify-center min-h-[480px] lg:min-h-[560px]"
               >
-                <div className="w-full h-full relative flex items-center justify-center">
+                <div className="w-full h-full relative">
                   <HeroScene />
                   
-                  {/* Floating Holographic Tag 1: Top Left */}
+                  {/* Floating Holographic Specular Tags */}
                   <motion.button 
                     onClick={() => setShowAiModal(true)}
                     initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: [0, -8, 0], opacity: 1 }}
+                    animate={{ y: [0, -6, 0], opacity: 1 }}
                     transition={{ y: { repeat: Infinity, duration: 4, ease: "easeInOut" }, delay: 0.6 }}
-                    className="absolute top-2 left-0 sm:left-2 card-glass px-4 py-2.5 rounded-2xl border-primary-500/40 backdrop-blur-xl shadow-xl shadow-primary-500/15 flex items-center gap-3 cursor-pointer hover:border-primary-400 hover:scale-105 transition-all text-left z-30"
+                    className="absolute top-4 left-0 sm:left-4 card-glass px-4 py-2.5 rounded-2xl border-primary-500/40 backdrop-blur-xl shadow-xl shadow-primary-500/15 flex items-center gap-3 cursor-pointer hover:border-primary-400 hover:scale-105 transition-all text-left z-30"
                   >
                     <span className="text-2xl">🤖</span>
                     <div>
@@ -163,43 +163,26 @@ export default function Landing() {
                     </div>
                   </motion.button>
 
-                  {/* Floating Holographic Tag 2: Top Right */}
-                  <motion.div 
-                    initial={{ y: -20, opacity: 0 }}
-                    animate={{ y: [0, 8, 0], opacity: 1 }}
-                    transition={{ y: { repeat: Infinity, duration: 5, ease: "easeInOut" }, delay: 0.9 }}
-                    className="absolute top-6 right-0 sm:right-2 card-glass px-4 py-2 rounded-2xl border-purple-500/40 backdrop-blur-xl shadow-xl shadow-purple-500/15 flex items-center gap-2.5 pointer-events-none z-20"
-                  >
-                    <span className="text-xl">🌐</span>
-                    <div>
-                      <div className="text-xs font-bold text-white">6 ATS Bridges</div>
-                      <div className="text-[10px] text-purple-300 font-semibold">Greenhouse · Lever · Ashby</div>
-                    </div>
-                  </motion.div>
-
-                  {/* Floating Holographic Tag 3: Bottom Left */}
-                  <motion.div 
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 1, duration: 0.5 }}
-                    className="absolute bottom-8 left-0 sm:left-2 card-glass px-3.5 py-2 rounded-xl border-emerald-500/30 backdrop-blur-xl text-xs font-medium text-emerald-300 flex items-center gap-2 pointer-events-none z-20"
-                  >
-                    <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                    <span>SQLite Vector Index Synced</span>
-                  </motion.div>
-
-                  {/* Floating Holographic Tag 4: Bottom Right */}
                   <motion.div 
                     initial={{ y: -20, opacity: 0 }}
                     animate={{ y: [0, 6, 0], opacity: 1 }}
                     transition={{ y: { repeat: Infinity, duration: 4.5, ease: "easeInOut" }, delay: 0.8 }}
-                    className="absolute bottom-4 right-0 sm:right-2 card-glass px-4 py-2.5 rounded-2xl border-accent-500/40 backdrop-blur-xl shadow-xl shadow-accent-500/15 flex items-center gap-3 pointer-events-none z-20"
+                    className="absolute bottom-6 right-0 sm:right-4 card-glass px-4 py-2.5 rounded-2xl border-accent-500/40 backdrop-blur-xl shadow-xl shadow-accent-500/15 flex items-center gap-3 pointer-events-none"
                   >
                     <span className="text-2xl">⚡</span>
                     <div>
                       <div className="text-xs font-bold text-white">1-Click AutoApply</div>
-                      <div className="text-[10px] text-primary-300 font-semibold">0.4s Ingestion Speed</div>
+                      <div className="text-[10px] text-primary-300 font-semibold">Ready on 6 Platforms</div>
                     </div>
+                  </motion.div>
+
+                  <motion.div 
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 1, duration: 0.5 }}
+                    className="absolute top-1/2 -left-2 card-glass px-3 py-1.5 rounded-xl border-purple-500/30 backdrop-blur-xl text-[11px] font-mono text-purple-300 hidden sm:flex items-center gap-1.5 pointer-events-none"
+                  >
+                    <span>🔒 AES-256 Auth</span>
                   </motion.div>
                 </div>
               </motion.div>
