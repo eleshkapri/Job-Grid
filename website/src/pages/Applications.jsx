@@ -1,37 +1,30 @@
 import { useState, useEffect } from 'react';
 import DashboardLayout from '../layouts/DashboardLayout';
 
-const defaultApps = [
-  { id: 1, role: 'Frontend Developer', company: 'Google', date: '2026-08-14', status: 'Applied', source: 'Greenhouse', note: 'Submitted via Job Grid Assist' },
-  { id: 2, role: 'React Engineer', company: 'Meta', date: '2026-08-12', status: 'Interview', source: 'Lever', note: 'Technical screen scheduled' },
-  { id: 3, role: 'UI Developer', company: 'Apple', date: '2026-08-10', status: 'Rejected', source: 'Workday', note: 'Position filled' },
-  { id: 4, role: 'Web Developer', company: 'Amazon', date: '2026-08-08', status: 'Offer', source: 'iCIMS', note: 'Reviewing offer package' },
-  { id: 5, role: 'Frontend Engineer', company: 'Stripe', date: '2026-08-05', status: 'Applied', source: 'Greenhouse', note: 'Awaiting recruiter feedback' },
-  { id: 6, role: 'Software Engineer', company: 'Microsoft', date: '2026-08-02', status: 'Interview', source: 'Careers Site', note: 'System design round' },
-  { id: 7, role: 'UI/UX Developer', company: 'Airbnb', date: '2026-07-28', status: 'Applied', source: 'Lever', note: 'Referred by teammate' },
-  { id: 8, role: 'Junior Frontend', company: 'Netflix', date: '2026-07-25', status: 'Rejected', source: 'Lever', note: '' },
-];
-
 export default function Applications() {
-  const [apps, setApps] = useState(defaultApps);
+  const [apps, setApps] = useState([]);
   const [activeTab, setActiveTab] = useState('All');
   const [search, setSearch] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [newApp, setNewApp] = useState({ role: '', company: '', source: 'LinkedIn', status: 'Applied', note: '' });
+  const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState('');
 
   const token = localStorage.getItem('token');
 
   useEffect(() => {
     async function fetchApps() {
-      if (!token) return;
+      if (!token) {
+        setLoading(false);
+        return;
+      }
       try {
         const res = await fetch('/api/applications', {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {
           const data = await res.json();
-          if (Array.isArray(data) && data.length > 0) {
+          if (Array.isArray(data)) {
             setApps(data.map(item => ({
               id: item.id,
               role: item.job_title || item.title || item.role,
@@ -44,7 +37,9 @@ export default function Applications() {
           }
         }
       } catch (err) {
-        console.log('Using local applications state');
+        console.error('Error fetching applications:', err);
+      } finally {
+        setLoading(false);
       }
     }
     fetchApps();
@@ -59,24 +54,9 @@ export default function Applications() {
     e.preventDefault();
     if (!newApp.role || !newApp.company) return;
 
-    const itemToAdd = {
-      id: Date.now(),
-      role: newApp.role,
-      company: newApp.company,
-      date: new Date().toISOString().split('T')[0],
-      status: newApp.status,
-      source: newApp.source,
-      note: newApp.note
-    };
-
-    setApps(prev => [itemToAdd, ...prev]);
-    setShowAddModal(false);
-    setNewApp({ role: '', company: '', source: 'LinkedIn', status: 'Applied', note: '' });
-    showToastMsg('Application added successfully!');
-
     if (token) {
       try {
-        await fetch('/api/applications', {
+        const res = await fetch('/api/applications', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -86,13 +66,41 @@ export default function Applications() {
             job_title: newApp.role,
             company: newApp.company,
             source: newApp.source,
+            status: newApp.status.toLowerCase(),
             notes: newApp.note
           })
         });
+
+        if (res.ok) {
+          const created = await res.json();
+          setApps(prev => [{
+            id: created.id || Date.now(),
+            role: newApp.role,
+            company: newApp.company,
+            date: new Date().toISOString().split('T')[0],
+            status: newApp.status,
+            source: newApp.source,
+            note: newApp.note
+          }, ...prev]);
+        }
       } catch (err) {
         console.error('Failed to sync application to API:', err);
       }
+    } else {
+      setApps(prev => [{
+        id: Date.now(),
+        role: newApp.role,
+        company: newApp.company,
+        date: new Date().toISOString().split('T')[0],
+        status: newApp.status,
+        source: newApp.source,
+        note: newApp.note
+      }, ...prev]);
     }
+
+    setShowAddModal(false);
+    setNewApp({ role: '', company: '', source: 'LinkedIn', status: 'Applied', note: '' });
+    showToastMsg('Application added successfully!');
   };
 
   const handleStatusChange = async (id, newStatus) => {
@@ -136,16 +144,6 @@ export default function Applications() {
   };
 
   const tabs = ['All', 'Applied', 'Interview', 'Offer', 'Rejected'];
-
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'Applied': return <span className="badge-primary">Applied</span>;
-      case 'Interview': return <span className="badge-warning">Interview</span>;
-      case 'Offer': return <span className="badge-success">Offer</span>;
-      case 'Rejected': return <span className="badge-danger">Rejected</span>;
-      default: return <span className="badge-primary">{status}</span>;
-    }
-  };
 
   return (
     <DashboardLayout>
@@ -235,10 +233,16 @@ export default function Applications() {
               </tr>
             </thead>
             <tbody>
-              {filteredApps.length === 0 ? (
+              {loading ? (
                 <tr>
                   <td colSpan="6" className="py-12 text-center text-gray-400">
-                    No applications found matching your criteria.
+                    Loading your applications...
+                  </td>
+                </tr>
+              ) : filteredApps.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="py-12 text-center text-gray-400">
+                    No applications tracked yet. Click "Add Application" above to track your first job!
                   </td>
                 </tr>
               ) : (

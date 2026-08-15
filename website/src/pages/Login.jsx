@@ -6,6 +6,7 @@ import { useAuth } from '../features/auth/AuthContext';
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -16,7 +17,7 @@ export default function Login() {
     setError('');
     setLoading(true);
     try {
-      const res = await login(email, password);
+      const res = await login(email.trim(), password);
       if (res && res.error) {
         setError(res.error);
       } else {
@@ -53,14 +54,24 @@ export default function Login() {
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-1">Password</label>
-          <input
-            type="password"
-            required
-            className="input-field"
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              required
+              className="input-field pr-12"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors text-sm select-none"
+              tabIndex={-1}
+            >
+              {showPassword ? '🙈 Hide' : '👁️ Show'}
+            </button>
+          </div>
         </div>
         
         <div className="flex items-center justify-between mt-2">

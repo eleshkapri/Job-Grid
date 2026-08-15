@@ -1,43 +1,71 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import DashboardLayout from '../layouts/DashboardLayout'
-
-const mockStats = [
-  { label: 'Total Applications', value: '47', trend: '+12 this week', icon: '📄', color: 'from-primary-600 to-primary-400' },
-  { label: 'Active', value: '23', trend: '8 pending review', icon: '🔄', color: 'from-blue-600 to-blue-400' },
-  { label: 'Interviews', value: '5', trend: '+2 this week', icon: '🎯', color: 'from-accent-600 to-accent-400' },
-  { label: 'Response Rate', value: '34%', trend: '↑ 5% vs last month', icon: '📊', color: 'from-purple-600 to-pink-400' },
-]
-
-const mockApplications = [
-  { id: 1, title: 'Frontend Developer', company: 'Stripe', status: 'interview', date: '2 days ago', source: 'greenhouse' },
-  { id: 2, title: 'Software Engineer Intern', company: 'Spotify', status: 'applied', date: '3 days ago', source: 'lever' },
-  { id: 3, title: 'Junior React Developer', company: 'Figma', status: 'applied', date: '4 days ago', source: 'greenhouse' },
-  { id: 4, title: 'Full Stack Developer', company: 'Discord', status: 'reviewing', date: '5 days ago', source: 'linkedin' },
-  { id: 5, title: 'Backend Engineer', company: 'Notion', status: 'rejected', date: '1 week ago', source: 'greenhouse' },
-]
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import DashboardLayout from '../layouts/DashboardLayout';
+import { useAuth } from '../features/auth/AuthContext';
 
 const statusStyles = {
   applied: 'badge badge-primary',
   reviewing: 'badge badge-warning',
-  interview: 'badge badge-success',
+  interview: 'badge badge-warning',
   rejected: 'badge badge-danger',
   offer: 'badge badge-success',
-}
+};
 
 export default function Dashboard() {
+  const { user, token } = useAuth();
+  const [applications, setApplications] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchUserApplications() {
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const res = await fetch('/api/applications', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setApplications(Array.isArray(data) ? data : []);
+        }
+      } catch (err) {
+        console.error('Error fetching dashboard applications:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchUserApplications();
+  }, [token]);
+
+  // Compute live user stats
+  const totalApps = applications.length;
+  const activeApps = applications.filter(a => (a.status || '').toLowerCase() === 'applied' || (a.status || '').toLowerCase() === 'reviewing').length;
+  const interviews = applications.filter(a => (a.status || '').toLowerCase() === 'interview').length;
+  const offers = applications.filter(a => (a.status || '').toLowerCase() === 'offer').length;
+
+  const stats = [
+    { label: 'Total Applications', value: totalApps.toString(), trend: `${totalApps} tracked`, icon: '📄', color: 'from-primary-600 to-primary-400' },
+    { label: 'Active Applications', value: activeApps.toString(), trend: 'In progress', icon: '🔄', color: 'from-blue-600 to-blue-400' },
+    { label: 'Interviews', value: interviews.toString(), trend: 'Scheduled', icon: '🎯', color: 'from-accent-600 to-accent-400' },
+    { label: 'Offers Received', value: offers.toString(), trend: 'Successful', icon: '🎉', color: 'from-purple-600 to-pink-400' },
+  ];
+
+  const recentApps = applications.slice(0, 5);
+
   return (
     <DashboardLayout>
       <div className="space-y-8 animate-fade-in">
         {/* Welcome */}
         <div>
-          <h1 className="text-3xl font-bold text-white">Welcome back, Alex 👋</h1>
-          <p className="text-surface-100/60 mt-1">Here's your application activity overview</p>
+          <h1 className="text-3xl font-bold text-white">Welcome back, {(user?.name || 'Candidate').split(' ')[0]} 👋</h1>
+          <p className="text-surface-100/60 mt-1">Here's your live application activity overview</p>
         </div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {mockStats.map((stat, i) => (
+          {stats.map((stat, i) => (
             <div key={stat.label} className={`card-glass animate-slide-up stagger-${i + 1}`}>
               <div className="flex items-start justify-between">
                 <div>
@@ -58,36 +86,53 @@ export default function Dashboard() {
             <h2 className="text-xl font-semibold text-white">Recent Applications</h2>
             <Link to="/applications" className="btn-ghost text-sm">View All →</Link>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="text-left text-surface-100/50 text-sm border-b border-white/5">
-                  <th className="pb-3 font-medium">Job Title</th>
-                  <th className="pb-3 font-medium">Company</th>
-                  <th className="pb-3 font-medium">Status</th>
-                  <th className="pb-3 font-medium">Date</th>
-                  <th className="pb-3 font-medium">Source</th>
-                </tr>
-              </thead>
-              <tbody>
-                {mockApplications.map((app) => (
-                  <tr key={app.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                    <td className="py-4 text-white font-medium">{app.title}</td>
-                    <td className="py-4 text-surface-100/70">{app.company}</td>
-                    <td className="py-4">
-                      <span className={statusStyles[app.status]}>
-                        {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
-                      </span>
-                    </td>
-                    <td className="py-4 text-surface-100/50 text-sm">{app.date}</td>
-                    <td className="py-4">
-                      <span className="badge badge-primary text-[10px]">{app.source}</span>
-                    </td>
+
+          {loading ? (
+            <div className="py-8 text-center text-gray-400 text-sm">Loading your activity...</div>
+          ) : recentApps.length === 0 ? (
+            <div className="py-12 text-center text-gray-400">
+              <div className="text-4xl mb-3">🚀</div>
+              <p className="text-white font-semibold mb-1">No applications tracked yet</p>
+              <p className="text-xs text-gray-400 mb-4">Start browsing jobs or launch search to auto-apply and track!</p>
+              <Link to="/jobs" className="btn-primary text-xs py-2 px-4">Browse Jobs Now</Link>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="text-left text-surface-100/50 text-sm border-b border-white/5">
+                    <th className="pb-3 font-medium">Job Title</th>
+                    <th className="pb-3 font-medium">Company</th>
+                    <th className="pb-3 font-medium">Status</th>
+                    <th className="pb-3 font-medium">Date</th>
+                    <th className="pb-3 font-medium">Source</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {recentApps.map((app) => {
+                    const st = (app.status || 'applied').toLowerCase();
+                    return (
+                      <tr key={app.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                        <td className="py-4 text-white font-medium">{app.job_title || app.title || app.role}</td>
+                        <td className="py-4 text-surface-100/70">{app.company}</td>
+                        <td className="py-4">
+                          <span className={statusStyles[st] || 'badge badge-primary'}>
+                            {st.charAt(0).toUpperCase() + st.slice(1)}
+                          </span>
+                        </td>
+                        <td className="py-4 text-surface-100/50 text-sm">
+                          {(app.applied_at || app.created_at || '').split('T')[0] || 'Today'}
+                        </td>
+                        <td className="py-4">
+                          <span className="badge badge-primary text-[10px]">{app.source || 'Manual'}</span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
         {/* Quick Actions */}
@@ -112,18 +157,18 @@ export default function Dashboard() {
                 <p className="text-sm text-surface-100/50">Update your details</p>
               </div>
             </Link>
-            <a href="https://chrome.google.com/webstore" target="_blank" rel="noopener noreferrer" className="card-glass flex items-center gap-4 group">
+            <Link to="/applications" className="card-glass flex items-center gap-4 group">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 to-pink-400 flex items-center justify-center text-xl shrink-0">
-                🧩
+                📊
               </div>
               <div>
-                <p className="font-semibold text-white group-hover:text-purple-400 transition-colors">Install Extension</p>
-                <p className="text-sm text-surface-100/50">Auto-fill job forms</p>
+                <p className="font-semibold text-white group-hover:text-purple-400 transition-colors">View Tracker</p>
+                <p className="text-sm text-surface-100/50">Track job responses</p>
               </div>
-            </a>
+            </Link>
           </div>
         </div>
       </div>
     </DashboardLayout>
-  )
+  );
 }

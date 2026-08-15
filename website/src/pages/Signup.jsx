@@ -3,19 +3,34 @@ import { Link, useNavigate } from 'react-router-dom';
 import AuthLayout from '../layouts/AuthLayout';
 import { useAuth } from '../features/auth/AuthContext';
 
+function capitalizeWords(str) {
+  return str.replace(/\b\w/g, char => char.toUpperCase());
+}
+
 export default function Signup() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { signup } = useAuth();
   const navigate = useNavigate();
 
+  const handleNameChange = (e) => {
+    setName(capitalizeWords(e.target.value));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (name.trim().length < 2) {
+      setError('Please enter your full name.');
+      return;
+    }
 
     if (password.length < 8) {
       setError('Password must be at least 8 characters long.');
@@ -29,7 +44,7 @@ export default function Signup() {
 
     setLoading(true);
     try {
-      const res = await signup(name, email, password);
+      const res = await signup(name.trim(), email.trim(), password);
       if (res && res.error) {
         setError(res.error);
       } else {
@@ -61,7 +76,7 @@ export default function Signup() {
             className="input-field"
             placeholder="John Doe"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={handleNameChange}
           />
         </div>
         <div>
@@ -77,27 +92,47 @@ export default function Signup() {
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-1">Password (Min 8 characters)</label>
-          <input
-            type="password"
-            required
-            minLength={8}
-            className="input-field"
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              required
+              minLength={8}
+              className="input-field pr-12"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors text-sm select-none"
+              tabIndex={-1}
+            >
+              {showPassword ? '🙈 Hide' : '👁️ Show'}
+            </button>
+          </div>
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-1">Confirm Password</label>
-          <input
-            type="password"
-            required
-            minLength={8}
-            className="input-field"
-            placeholder="••••••••"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
+          <div className="relative">
+            <input
+              type={showConfirmPassword ? 'text' : 'password'}
+              required
+              minLength={8}
+              className="input-field pr-12"
+              placeholder="••••••••"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors text-sm select-none"
+              tabIndex={-1}
+            >
+              {showConfirmPassword ? '🙈 Hide' : '👁️ Show'}
+            </button>
+          </div>
         </div>
         
         <button type="submit" disabled={loading} className="btn-primary w-full mt-6 py-3 shadow-lg shadow-primary-500/25">

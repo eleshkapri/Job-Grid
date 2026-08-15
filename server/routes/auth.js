@@ -18,7 +18,7 @@ router.post('/signup', async (req, res) => {
     }
 
     email = email.trim().toLowerCase();
-    name = name.trim();
+    name = name.trim().replace(/\b\w/g, c => c.toUpperCase());
 
     if (!EMAIL_REGEX.test(email)) {
       return res.status(400).json({ error: 'Invalid email address format' });

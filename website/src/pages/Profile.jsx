@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import DashboardLayout from '../layouts/DashboardLayout'
+import { useAuth } from '../features/auth/AuthContext'
 
 const POPULAR_LOCATIONS = [
   'Remote',
@@ -14,23 +15,19 @@ const POPULAR_LOCATIONS = [
 ]
 
 const initialProfile = {
-  name: 'Alex Johnson',
-  email: 'alex.johnson@email.com',
-  phone: '+1 (555) 123-4567',
-  location: 'San Francisco, CA',
-  preferred_location: 'Bangalore, India',
+  name: '',
+  email: '',
+  phone: '',
+  location: '',
+  preferred_location: '',
   remote_only: false,
-  headline: 'Frontend Developer | React & JavaScript Enthusiast',
-  summary: 'Recent CS graduate passionate about building beautiful, performant web applications. Experienced with React, Node.js, and modern web technologies.',
-  skills: ['React', 'JavaScript', 'TypeScript', 'Node.js', 'CSS', 'Git', 'Python'],
-  linkedin_url: 'https://linkedin.com/in/alexjohnson',
-  portfolio_url: 'https://alexjohnson.dev',
-  education: [
-    { school: 'Stanford University', degree: 'B.S. Computer Science', year: '2024' }
-  ],
-  experience: [
-    { company: 'Tech Startup Inc.', role: 'Frontend Intern', duration: 'Jun 2023 - Aug 2023' }
-  ],
+  headline: '',
+  summary: '',
+  skills: [],
+  linkedin_url: '',
+  portfolio_url: '',
+  education: [],
+  experience: [],
 }
 
 export default function Profile() {
@@ -41,10 +38,19 @@ export default function Profile() {
   const [saved, setSaved] = useState(false)
   const fileRef = useRef(null)
 
-  const token = localStorage.getItem('token')
+  const { user, token } = useAuth()
 
   useEffect(() => {
     async function fetchProfile() {
+      // Pre-fill from auth context
+      if (user) {
+        setProfile(prev => ({
+          ...prev,
+          name: prev.name || user.name || '',
+          email: prev.email || user.email || ''
+        }));
+      }
+
       if (!token) return;
       try {
         const res = await fetch('/api/profile', {
@@ -55,6 +61,8 @@ export default function Profile() {
           setProfile(prev => ({
             ...prev,
             ...data,
+            name: data.name || user?.name || prev.name,
+            email: data.email || user?.email || prev.email,
             skills: typeof data.skills === 'string' ? JSON.parse(data.skills) : (data.skills || prev.skills),
             education: typeof data.education === 'string' ? JSON.parse(data.education) : (data.education || prev.education),
             experience: typeof data.experience === 'string' ? JSON.parse(data.experience) : (data.experience || prev.experience),
@@ -67,7 +75,7 @@ export default function Profile() {
       }
     }
     fetchProfile();
-  }, [token]);
+  }, [token, user]);
 
   const updateField = (field, value) => {
     setProfile(prev => ({ ...prev, [field]: value }))
