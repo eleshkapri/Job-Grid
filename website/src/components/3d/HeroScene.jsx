@@ -1,31 +1,31 @@
 import { Suspense, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Float, MeshDistortMaterial, Sphere, Ring, Points, PointMaterial } from '@react-three/drei';
+import { Float, MeshDistortMaterial, Points, PointMaterial } from '@react-three/drei';
 import * as THREE from 'three';
 
-// 1. Digital Core Sphere with Organic Noise Distortion
+// 1. Digital Core Icosahedron with Rich Gradient Distortion
 function CoreSphere() {
   const meshRef = useRef(null);
 
   useFrame((state, delta) => {
     if (meshRef.current) {
-      meshRef.current.rotation.x += delta * 0.25;
-      meshRef.current.rotation.y += delta * 0.35;
+      meshRef.current.rotation.x += delta * 0.3;
+      meshRef.current.rotation.y += delta * 0.45;
     }
   });
 
   return (
-    <Float speed={2.5} rotationIntensity={1.2} floatIntensity={1.8}>
+    <Float speed={3} rotationIntensity={1.5} floatIntensity={2}>
       <mesh ref={meshRef}>
-        <icosahedronGeometry args={[1.6, 12]} />
+        <icosahedronGeometry args={[2.0, 16]} />
         <MeshDistortMaterial
           color="#6366f1"
-          emissive="#4338ca"
-          emissiveIntensity={0.6}
-          roughness={0.15}
-          metalness={0.8}
-          distort={0.42}
-          speed={2.2}
+          emissive="#3730a3"
+          emissiveIntensity={0.8}
+          roughness={0.1}
+          metalness={0.85}
+          distort={0.45}
+          speed={2.5}
           wireframe={false}
         />
       </mesh>
@@ -33,60 +33,60 @@ function CoreSphere() {
   );
 }
 
-// 2. Holographic Orbital Ring with Pulsing Data Flow
+// 2. Holographic Orbital Rings
 function OrbitingRings() {
   const ring1Ref = useRef(null);
   const ring2Ref = useRef(null);
   const ring3Ref = useRef(null);
 
   useFrame((state, delta) => {
-    if (ring1Ref.current) ring1Ref.current.rotation.z += delta * 0.4;
-    if (ring2Ref.current) ring2Ref.current.rotation.x += delta * 0.3;
-    if (ring3Ref.current) ring3Ref.current.rotation.y += delta * 0.25;
+    if (ring1Ref.current) ring1Ref.current.rotation.z += delta * 0.5;
+    if (ring2Ref.current) ring2Ref.current.rotation.x += delta * 0.35;
+    if (ring3Ref.current) ring3Ref.current.rotation.y += delta * 0.3;
   });
 
   return (
     <>
       <group ref={ring1Ref} rotation={[Math.PI / 4, Math.PI / 6, 0]}>
         <mesh>
-          <torusGeometry args={[2.5, 0.02, 16, 100]} />
-          <meshStandardMaterial color="#a855f7" emissive="#a855f7" emissiveIntensity={0.8} />
+          <torusGeometry args={[3.2, 0.025, 16, 120]} />
+          <meshStandardMaterial color="#a855f7" emissive="#a855f7" emissiveIntensity={1} />
         </mesh>
       </group>
 
       <group ref={ring2Ref} rotation={[-Math.PI / 3, 0, Math.PI / 4]}>
         <mesh>
-          <torusGeometry args={[2.9, 0.018, 16, 100]} />
-          <meshStandardMaterial color="#38bdf8" emissive="#38bdf8" emissiveIntensity={0.8} />
+          <torusGeometry args={[3.7, 0.02, 16, 120]} />
+          <meshStandardMaterial color="#38bdf8" emissive="#38bdf8" emissiveIntensity={1} />
         </mesh>
       </group>
 
       <group ref={ring3Ref} rotation={[0, Math.PI / 3, -Math.PI / 6]}>
         <mesh>
-          <torusGeometry args={[3.3, 0.015, 16, 100]} />
-          <meshStandardMaterial color="#818cf8" emissive="#818cf8" emissiveIntensity={0.7} />
+          <torusGeometry args={[4.2, 0.018, 16, 120]} />
+          <meshStandardMaterial color="#818cf8" emissive="#818cf8" emissiveIntensity={0.9} />
         </mesh>
       </group>
     </>
   );
 }
 
-// 3. Floating Digital Ambient Particles Field
+// 3. Floating Ambient Particles Cloud
 function ParticleField() {
   const particlesRef = useRef(null);
-  const count = 300;
+  const count = 400;
 
   const positions = new Float32Array(count * 3);
   for (let i = 0; i < count * 3; i += 3) {
-    positions[i] = (Math.random() - 0.5) * 12;
-    positions[i + 1] = (Math.random() - 0.5) * 12;
-    positions[i + 2] = (Math.random() - 0.5) * 12;
+    positions[i] = (Math.random() - 0.5) * 16;
+    positions[i + 1] = (Math.random() - 0.5) * 16;
+    positions[i + 2] = (Math.random() - 0.5) * 16;
   }
 
   useFrame((state, delta) => {
     if (particlesRef.current) {
-      particlesRef.current.rotation.y += delta * 0.05;
-      particlesRef.current.rotation.x += delta * 0.03;
+      particlesRef.current.rotation.y += delta * 0.06;
+      particlesRef.current.rotation.x += delta * 0.04;
     }
   });
 
@@ -95,10 +95,10 @@ function ParticleField() {
       <PointMaterial
         transparent
         color="#c084fc"
-        size={0.045}
+        size={0.06}
         sizeAttenuation={true}
         depthWrite={false}
-        opacity={0.75}
+        opacity={0.8}
       />
     </Points>
   );
@@ -110,20 +110,19 @@ function SceneContainer() {
 
   useFrame((state) => {
     if (groupRef.current) {
-      // Smooth interpolation toward normalized mouse coordinates
-      const targetX = (state.mouse.x * Math.PI) / 6;
-      const targetY = (state.mouse.y * Math.PI) / 6;
-      groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, -targetY, 0.05);
-      groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetX, 0.05);
+      const targetX = (state.mouse.x * Math.PI) / 5;
+      const targetY = (state.mouse.y * Math.PI) / 5;
+      groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, -targetY, 0.06);
+      groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetX, 0.06);
     }
   });
 
   return (
     <group ref={groupRef}>
-      <ambientLight intensity={0.7} />
-      <directionalLight position={[10, 10, 5]} intensity={1.5} color="#ffffff" />
-      <pointLight position={[-10, -10, -5]} intensity={2} color="#818cf8" />
-      <pointLight position={[5, -5, 5]} intensity={1.5} color="#ec4899" />
+      <ambientLight intensity={0.9} />
+      <directionalLight position={[10, 10, 5]} intensity={2.0} color="#ffffff" />
+      <pointLight position={[-10, -10, -5]} intensity={2.5} color="#818cf8" />
+      <pointLight position={[5, -5, 5]} intensity={2.0} color="#ec4899" />
       
       <CoreSphere />
       <OrbitingRings />
@@ -134,14 +133,14 @@ function SceneContainer() {
 
 export default function HeroScene() {
   return (
-    <div className="w-full h-full min-h-[420px] md:min-h-[520px] relative pointer-events-auto">
+    <div className="w-full h-full min-h-[480px] lg:min-h-[580px] relative pointer-events-auto flex items-center justify-center">
       <Suspense fallback={
         <div className="w-full h-full flex items-center justify-center">
-          <div className="w-32 h-32 rounded-full border-2 border-primary-500/30 border-t-primary-500 animate-spin" />
+          <div className="w-24 h-24 rounded-full border-2 border-primary-500/30 border-t-primary-500 animate-spin" />
         </div>
       }>
         <Canvas
-          camera={{ position: [0, 0, 6.2], fov: 45 }}
+          camera={{ position: [0, 0, 6.8], fov: 45 }}
           gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
           className="w-full h-full"
         >

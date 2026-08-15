@@ -7,6 +7,7 @@ import SmoothScroll from '../components/3d/SmoothScroll';
 import SpotlightBackground from '../components/3d/SpotlightBackground';
 import HeroScene from '../components/3d/HeroScene';
 import TiltCard from '../components/3d/TiltCard';
+import DemoShowcase from '../components/DemoShowcase';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -22,6 +23,15 @@ const staggerContainer = {
     }
   }
 };
+
+const connectedPlatforms = [
+  { name: 'Greenhouse', color: 'text-emerald-400', border: 'border-emerald-500/30', bg: 'bg-emerald-500/10' },
+  { name: 'Lever', color: 'text-blue-400', border: 'border-blue-500/30', bg: 'bg-blue-500/10' },
+  { name: 'Ashby', color: 'text-purple-400', border: 'border-purple-500/30', bg: 'bg-purple-500/10' },
+  { name: 'Workable', color: 'text-amber-400', border: 'border-amber-500/30', bg: 'bg-amber-500/10' },
+  { name: 'LinkedIn', color: 'text-sky-400', border: 'border-sky-500/30', bg: 'bg-sky-500/10' },
+  { name: 'Naukri', color: 'text-rose-400', border: 'border-rose-500/30', bg: 'bg-rose-500/10' },
+];
 
 export default function Landing() {
   const [stats, setStats] = useState({ totalUsers: 0, totalApplications: 0, platforms: 6 });
@@ -43,9 +53,9 @@ export default function Landing() {
 
         <main className="flex-1 relative z-10">
           {/* ========================================================================= */}
-          {/* 3D HERO SECTION                                                           */}
+          {/* 3D HERO SECTION WITH FLOATING PLATFORM CONSTELLATION                      */}
           {/* ========================================================================= */}
-          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-20 lg:pt-20 lg:pb-28">
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-20 lg:pt-16 lg:pb-28">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
               
               {/* Left Column: Kinetic Typography & CTAs */}
@@ -75,12 +85,12 @@ export default function Landing() {
                 </motion.h1>
 
                 {/* Subtitle */}
-                <motion.p variants={fadeInUp} className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto lg:mx-0 mb-10 leading-relaxed font-normal">
+                <motion.p variants={fadeInUp} className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto lg:mx-0 mb-8 leading-relaxed font-normal">
                   Build your verified candidate profile once. Seamlessly discover, autofill, and synchronize live applications across <strong className="text-white">LinkedIn, Naukri, Greenhouse, Lever, Ashby, and Workable</strong> in one unified 3D workspace.
                 </motion.p>
 
-                {/* Interactive CTAs with Hover Springs */}
-                <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center">
+                {/* Interactive CTAs */}
+                <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center mb-10">
                   <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
                     <Link 
                       to="/signup" 
@@ -94,36 +104,38 @@ export default function Landing() {
                   <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
                     <a 
                       href="#how-it-works" 
-                      className="btn-secondary text-lg px-8 py-4 backdrop-blur-xl border-white/10 hover:border-primary-400/40 transition-colors"
+                      className="btn-secondary text-lg px-8 py-4 backdrop-blur-xl border-white/10 hover:border-primary-400/40 transition-colors flex items-center gap-2"
                     >
-                      Explore Workflow
+                      <span>▶ Watch Demo</span>
                     </a>
                   </motion.div>
                 </motion.div>
 
-                {/* Live Feature Highlights */}
-                <motion.div variants={fadeInUp} className="mt-10 pt-8 border-t border-white/10 grid grid-cols-3 gap-4 max-w-md mx-auto lg:mx-0 text-center sm:text-left">
-                  <div>
-                    <div className="text-sm font-bold text-white">⚡ Instant</div>
-                    <div className="text-xs text-gray-400 mt-0.5">1-Click Auto-Fill</div>
+                {/* Connected Platforms Pill Badges (Fills empty space with rich aesthetics) */}
+                <motion.div variants={fadeInUp} className="pt-6 border-t border-white/10">
+                  <div className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3 text-center lg:text-left">
+                    Integrated Career Portals & ATS Engines
                   </div>
-                  <div>
-                    <div className="text-sm font-bold text-white">🔒 Private</div>
-                    <div className="text-xs text-gray-400 mt-0.5">Encrypted Data</div>
-                  </div>
-                  <div>
-                    <div className="text-sm font-bold text-white">🌐 6 Portals</div>
-                    <div className="text-xs text-gray-400 mt-0.5">ATS & Boards</div>
+                  <div className="flex flex-wrap gap-2 justify-center lg:justify-start">
+                    {connectedPlatforms.map((p) => (
+                      <span 
+                        key={p.name}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold border ${p.border} ${p.bg} ${p.color} backdrop-blur-md flex items-center gap-1.5 shadow-sm`}
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                        {p.name}
+                      </span>
+                    ))}
                   </div>
                 </motion.div>
               </motion.div>
 
-              {/* Right Column: 3D Interactive WebGL Canvas */}
+              {/* Right Column: 3D Interactive WebGL Canvas with Floating Badges */}
               <motion.div 
                 initial={{ opacity: 0, scale: 0.85 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                className="lg:col-span-5 relative flex items-center justify-center min-h-[440px]"
+                className="lg:col-span-5 relative flex items-center justify-center min-h-[480px] lg:min-h-[560px]"
               >
                 <div className="w-full h-full relative">
                   <HeroScene />
@@ -131,28 +143,40 @@ export default function Landing() {
                   {/* Floating Holographic Specular Tags */}
                   <motion.div 
                     initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.6, duration: 0.8 }}
-                    className="absolute -top-2 -left-4 sm:left-4 card-glass px-4 py-2.5 rounded-2xl border-primary-500/30 backdrop-blur-xl shadow-xl shadow-primary-500/10 flex items-center gap-3 pointer-events-none"
+                    animate={{ y: [0, -6, 0], opacity: 1 }}
+                    transition={{ y: { repeat: Infinity, duration: 4, ease: "easeInOut" }, delay: 0.6 }}
+                    className="absolute top-4 left-0 sm:left-4 card-glass px-4 py-2.5 rounded-2xl border-primary-500/40 backdrop-blur-xl shadow-xl shadow-primary-500/15 flex items-center gap-3 pointer-events-none"
                   >
-                    <span className="text-xl">🤖</span>
+                    <span className="text-2xl">🤖</span>
                     <div>
                       <div className="text-xs font-bold text-white">AI Core Sync</div>
-                      <div className="text-[10px] text-emerald-400 font-semibold">Active & Listening</div>
+                      <div className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                        Active & Listening
+                      </div>
                     </div>
                   </motion.div>
 
                   <motion.div 
                     initial={{ y: -20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.8, duration: 0.8 }}
-                    className="absolute -bottom-4 right-0 sm:right-4 card-glass px-4 py-2.5 rounded-2xl border-accent-500/30 backdrop-blur-xl shadow-xl shadow-accent-500/10 flex items-center gap-3 pointer-events-none"
+                    animate={{ y: [0, 6, 0], opacity: 1 }}
+                    transition={{ y: { repeat: Infinity, duration: 4.5, ease: "easeInOut" }, delay: 0.8 }}
+                    className="absolute bottom-6 right-0 sm:right-4 card-glass px-4 py-2.5 rounded-2xl border-accent-500/40 backdrop-blur-xl shadow-xl shadow-accent-500/15 flex items-center gap-3 pointer-events-none"
                   >
-                    <span className="text-xl">⚡</span>
+                    <span className="text-2xl">⚡</span>
                     <div>
-                      <div className="text-xs font-bold text-white">Live Tracking</div>
-                      <div className="text-[10px] text-primary-300 font-semibold">Real-Time Database</div>
+                      <div className="text-xs font-bold text-white">1-Click AutoApply</div>
+                      <div className="text-[10px] text-primary-300 font-semibold">Ready on 6 Platforms</div>
                     </div>
+                  </motion.div>
+
+                  <motion.div 
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 1, duration: 0.5 }}
+                    className="absolute top-1/2 -left-2 card-glass px-3 py-1.5 rounded-xl border-purple-500/30 backdrop-blur-xl text-[11px] font-mono text-purple-300 hidden sm:flex items-center gap-1.5 pointer-events-none"
+                  >
+                    <span>🔒 AES-256 Auth</span>
                   </motion.div>
                 </div>
               </motion.div>
@@ -231,9 +255,117 @@ export default function Landing() {
           </section>
 
           {/* ========================================================================= */}
+          {/* HOW IT WORKS SECTION WITH INTERACTIVE PRODUCT DEMO VIDEO SHOWCASE         */}
+          {/* ========================================================================= */}
+          <section id="how-it-works" className="py-20 relative my-4">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              
+              {/* Header */}
+              <motion.div 
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-100px" }}
+                variants={fadeInUp}
+                className="text-center mb-14"
+              >
+                <span className="text-primary-400 font-bold text-xs uppercase tracking-widest bg-primary-500/10 border border-primary-500/20 px-3.5 py-1.5 rounded-full">
+                  Interactive Product Demo
+                </span>
+                <h2 className="text-3xl sm:text-5xl font-extrabold text-white mt-3 tracking-tight">
+                  How Job Grid Works in Action
+                </h2>
+                <p className="mt-3 text-gray-400 text-lg max-w-2xl mx-auto">
+                  Watch how our automated workflow transforms manual job applications into an effortless, real-time experience.
+                </p>
+              </motion.div>
+
+              {/* Interactive Demo Showcase Player */}
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-80px" }}
+                variants={fadeInUp}
+                className="mb-16"
+              >
+                <DemoShowcase />
+              </motion.div>
+
+              {/* 3 Step Deep Dive Grid */}
+              <motion.div 
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-80px" }}
+                variants={staggerContainer}
+                className="grid grid-cols-1 md:grid-cols-3 gap-8"
+              >
+                {/* Step 1 */}
+                <motion.div variants={fadeInUp}>
+                  <TiltCard maxTilt={10} className="h-full">
+                    <div className="card-glass p-8 rounded-3xl border-white/10 bg-gradient-to-b from-surface-900/90 to-surface-950 flex flex-col justify-between h-full">
+                      <div>
+                        <div className="w-14 h-14 rounded-2xl bg-surface-900 border-2 border-primary-500 flex items-center justify-center text-2xl font-extrabold text-primary-400 mb-6 shadow-xl shadow-primary-500/25">
+                          1
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-2">Build Single Master Profile</h3>
+                        <p className="text-gray-400 text-sm leading-relaxed">
+                          Enter your headline, contact details, skills, location preference, and resume once in your encrypted candidate profile.
+                        </p>
+                      </div>
+                      <div className="mt-6 pt-4 border-t border-white/5 text-xs text-primary-400 font-semibold">
+                        ✓ Saved to SQLite in Real-Time
+                      </div>
+                    </div>
+                  </TiltCard>
+                </motion.div>
+                
+                {/* Step 2 */}
+                <motion.div variants={fadeInUp}>
+                  <TiltCard maxTilt={10} className="h-full">
+                    <div className="card-glass p-8 rounded-3xl border-white/10 bg-gradient-to-b from-surface-900/90 to-surface-950 flex flex-col justify-between h-full">
+                      <div>
+                        <div className="w-14 h-14 rounded-2xl bg-surface-900 border-2 border-accent-400 flex items-center justify-center text-2xl font-extrabold text-accent-400 mb-6 shadow-xl shadow-accent-500/25">
+                          2
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-2">Discover Live ATS Postings</h3>
+                        <p className="text-gray-400 text-sm leading-relaxed">
+                          Search verified openings aggregated directly from Greenhouse, Lever, Ashby, and Workable with location and keyword filters.
+                        </p>
+                      </div>
+                      <div className="mt-6 pt-4 border-t border-white/5 text-xs text-accent-400 font-semibold">
+                        ✓ Live Public ATS Feeds
+                      </div>
+                    </div>
+                  </TiltCard>
+                </motion.div>
+                
+                {/* Step 3 */}
+                <motion.div variants={fadeInUp}>
+                  <TiltCard maxTilt={10} className="h-full">
+                    <div className="card-glass p-8 rounded-3xl border-white/10 bg-gradient-to-b from-surface-900/90 to-surface-950 flex flex-col justify-between h-full">
+                      <div>
+                        <div className="w-14 h-14 rounded-2xl bg-surface-900 border-2 border-purple-400 flex items-center justify-center text-2xl font-extrabold text-purple-400 mb-6 shadow-xl shadow-purple-500/25">
+                          3
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-2">1-Click Apply & Track</h3>
+                        <p className="text-gray-400 text-sm leading-relaxed">
+                          Click apply to autofill application forms in seconds. Submitted applications automatically synchronize to your tracking pipeline.
+                        </p>
+                      </div>
+                      <div className="mt-6 pt-4 border-t border-white/5 text-xs text-purple-400 font-semibold">
+                        ✓ Automated Status Logging
+                      </div>
+                    </div>
+                  </TiltCard>
+                </motion.div>
+              </motion.div>
+
+            </div>
+          </section>
+
+          {/* ========================================================================= */}
           {/* 3D TILT FEATURES SECTION ("Why Choose Job Grid?")                          */}
           {/* ========================================================================= */}
-          <section id="features" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+          <section id="features" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
             <motion.div 
               initial="hidden"
               whileInView="visible"
@@ -248,7 +380,7 @@ export default function Landing() {
                 Why Choose Job Grid?
               </h2>
               <p className="mt-4 text-gray-400 text-lg max-w-2xl mx-auto">
-                Engineered with high-velocity automation so you spend less time on repetitive forms and more time interviewing.
+                Everything you need to land your first tech job, 10x faster.
               </p>
             </motion.div>
             
@@ -269,7 +401,7 @@ export default function Landing() {
                       </div>
                       <h3 className="text-2xl font-bold text-white mb-3">One Profile, Everywhere</h3>
                       <p className="text-gray-400 leading-relaxed text-sm">
-                        Store your headline, skills, work experience, education, and resume once. Our engine adapts and injects them accurately across diverse portal formats.
+                        Store your headline, skills, work experience, education, and resume once. Our engine formats and injects them accurately across diverse portal forms.
                       </p>
                     </div>
                     <div className="mt-8 pt-4 border-t border-white/5 flex items-center gap-2 text-xs font-semibold text-purple-400">
@@ -319,72 +451,6 @@ export default function Landing() {
                 </TiltCard>
               </motion.div>
             </motion.div>
-          </section>
-
-          {/* ========================================================================= */}
-          {/* HOW IT WORKS SECTION (CONNECTED FLOW PIPELINE)                            */}
-          {/* ========================================================================= */}
-          <section id="how-it-works" className="py-24 relative my-8">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <motion.div 
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: "-100px" }}
-                variants={fadeInUp}
-                className="card-glass p-10 sm:p-16 rounded-3xl bg-gradient-to-b from-surface-900 via-surface-950 to-surface-900 border-white/10 relative overflow-hidden shadow-2xl"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-primary-600/10 via-purple-600/10 to-accent-400/10 opacity-75 pointer-events-none"></div>
-
-                <div className="text-center mb-16 relative z-10">
-                  <span className="text-primary-400 font-bold text-xs uppercase tracking-widest">Frictionless Steps</span>
-                  <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mt-2 tracking-tight">
-                    How It Works
-                  </h2>
-                  <p className="mt-3 text-gray-400 text-lg">Three streamlined steps to automate your tech job hunt.</p>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-10 relative z-10">
-                  {/* Step 1 */}
-                  <TiltCard maxTilt={10}>
-                    <div className="flex flex-col items-center text-center p-6 rounded-2xl bg-surface-900/60 border border-white/5 h-full">
-                      <div className="w-20 h-20 rounded-2xl bg-surface-900 border-2 border-primary-500 flex items-center justify-center text-2xl font-extrabold text-primary-400 mb-6 shadow-xl shadow-primary-500/25">
-                        1
-                      </div>
-                      <h3 className="text-xl font-bold text-white mb-2">Build Profile</h3>
-                      <p className="text-gray-400 text-sm leading-relaxed">
-                        Upload your resume and input your skills, preferred location, and education once.
-                      </p>
-                    </div>
-                  </TiltCard>
-                  
-                  {/* Step 2 */}
-                  <TiltCard maxTilt={10}>
-                    <div className="flex flex-col items-center text-center p-6 rounded-2xl bg-surface-900/60 border border-white/5 h-full">
-                      <div className="w-20 h-20 rounded-2xl bg-surface-900 border-2 border-accent-400 flex items-center justify-center text-2xl font-extrabold text-accent-400 mb-6 shadow-xl shadow-accent-500/25">
-                        2
-                      </div>
-                      <h3 className="text-xl font-bold text-white mb-2">Discover Live Openings</h3>
-                      <p className="text-gray-400 text-sm leading-relaxed">
-                        Browse real-time ATS postings from Greenhouse, Lever, Ashby, and Workable with location filtering.
-                      </p>
-                    </div>
-                  </TiltCard>
-                  
-                  {/* Step 3 */}
-                  <TiltCard maxTilt={10}>
-                    <div className="flex flex-col items-center text-center p-6 rounded-2xl bg-surface-900/60 border border-white/5 h-full">
-                      <div className="w-20 h-20 rounded-2xl bg-surface-900 border-2 border-purple-400 flex items-center justify-center text-2xl font-extrabold text-purple-400 mb-6 shadow-xl shadow-purple-500/25">
-                        3
-                      </div>
-                      <h3 className="text-xl font-bold text-white mb-2">Autofill & Track</h3>
-                      <p className="text-gray-400 text-sm leading-relaxed">
-                        Click Apply. Our Chrome extension autofills forms in seconds and syncs your tracking dashboard.
-                      </p>
-                    </div>
-                  </TiltCard>
-                </div>
-              </motion.div>
-            </div>
           </section>
 
           {/* ========================================================================= */}
