@@ -16,6 +16,7 @@ import authRoutes from './routes/auth.js';
 import profileRoutes from './routes/profile.js';
 import jobsRoutes from './routes/jobs.js';
 import applicationsRoutes from './routes/applications.js';
+import aiRoutes from './routes/ai.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -101,6 +102,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/jobs', jobsRoutes);
 app.use('/api/applications', applicationsRoutes);
+app.use('/api/ai', aiRoutes);
 
 // 404 handler
 app.use((req, res) => {

@@ -8,6 +8,7 @@ import SpotlightBackground from '../components/3d/SpotlightBackground';
 import HeroScene from '../components/3d/HeroScene';
 import TiltCard from '../components/3d/TiltCard';
 import DemoShowcase from '../components/DemoShowcase';
+import AiCoreSyncModal from '../components/AiCoreSyncModal';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -35,6 +36,7 @@ const connectedPlatforms = [
 
 export default function Landing() {
   const [stats, setStats] = useState({ totalUsers: 0, totalApplications: 0, platforms: 6 });
+  const [showAiModal, setShowAiModal] = useState(false);
 
   useEffect(() => {
     fetch('/api/stats')
@@ -141,21 +143,25 @@ export default function Landing() {
                   <HeroScene />
                   
                   {/* Floating Holographic Specular Tags */}
-                  <motion.div 
+                  <motion.button 
+                    onClick={() => setShowAiModal(true)}
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: [0, -6, 0], opacity: 1 }}
                     transition={{ y: { repeat: Infinity, duration: 4, ease: "easeInOut" }, delay: 0.6 }}
-                    className="absolute top-4 left-0 sm:left-4 card-glass px-4 py-2.5 rounded-2xl border-primary-500/40 backdrop-blur-xl shadow-xl shadow-primary-500/15 flex items-center gap-3 pointer-events-none"
+                    className="absolute top-4 left-0 sm:left-4 card-glass px-4 py-2.5 rounded-2xl border-primary-500/40 backdrop-blur-xl shadow-xl shadow-primary-500/15 flex items-center gap-3 cursor-pointer hover:border-primary-400 hover:scale-105 transition-all text-left z-30"
                   >
                     <span className="text-2xl">🤖</span>
                     <div>
-                      <div className="text-xs font-bold text-white">AI Core Sync</div>
+                      <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                        AI Core Sync
+                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-primary-500/30 text-primary-200">Open ↗</span>
+                      </div>
                       <div className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
                         Active & Listening
                       </div>
                     </div>
-                  </motion.div>
+                  </motion.button>
 
                   <motion.div 
                     initial={{ y: -20, opacity: 0 }}
@@ -488,6 +494,9 @@ export default function Landing() {
         </main>
 
         <Footer />
+
+        {/* Global AI Core Sync Modal */}
+        <AiCoreSyncModal isOpen={showAiModal} onClose={() => setShowAiModal(false)} />
       </div>
     </SmoothScroll>
   );
