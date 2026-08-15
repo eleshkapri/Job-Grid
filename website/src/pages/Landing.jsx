@@ -1,32 +1,43 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
 export default function Landing() {
+  const [stats, setStats] = useState({ totalUsers: 0, totalApplications: 0, platforms: 6 });
+
+  useEffect(() => {
+    fetch('/api/stats')
+      .then(res => res.json())
+      .then(data => setStats(data))
+      .catch(() => {});
+  }, []);
+
   return (
     <div className="min-h-screen bg-surface-950 text-white font-sans flex flex-col relative overflow-hidden">
       {/* Background ambient lighting */}
-      <div className="absolute top-0 left-[-10%] w-[50%] h-[50%] bg-primary-600/15 rounded-full blur-[140px] pointer-events-none"></div>
-      <div className="absolute top-[40%] right-[-10%] w-[45%] h-[45%] bg-accent-500/10 rounded-full blur-[140px] pointer-events-none"></div>
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] bg-primary-600/10 rounded-full blur-[120px]"></div>
+        <div className="absolute bottom-[-20%] right-[-10%] w-[45vw] h-[45vw] bg-accent-400/8 rounded-full blur-[100px]"></div>
+      </div>
       
       <Navbar />
 
-      <main className="flex-grow">
+      <main className="flex-1 relative z-10">
         {/* Hero Section */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20 text-center relative z-10">
-          <div className="animate-slide-up">
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary-500/10 border border-primary-500/30 text-primary-300 text-sm font-semibold mb-8">
-              ✨ The #1 Auto-Apply Platform for Freshers
-            </span>
-            <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight mb-6 leading-tight">
-              <span className="block text-white">Apply to Jobs Everywhere,</span>
-              <span className="block gradient-text mt-2">Automatically</span>
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16 text-center">
+          <div className="animate-fade-in">
+            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6">
+              <span className="gradient-text">Apply to Jobs Everywhere,</span><br />
+              <span className="text-white">Automatically</span>
             </h1>
-            <p className="mt-6 max-w-2xl mx-auto text-lg sm:text-xl text-gray-300 leading-relaxed">
-              Build your candidate profile once. Automatically discover and autofill applications across LinkedIn, Naukri, Greenhouse, and Lever in one single dashboard.
+            <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-10">
+              Build your candidate profile once. Automatically discover and autofill
+              applications across LinkedIn, Naukri, Greenhouse, and Lever in one single
+              dashboard.
             </p>
-            <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4 max-w-md mx-auto sm:max-w-none">
-              <Link to="/signup" className="btn-primary text-lg px-8 py-4 shadow-xl shadow-primary-600/25">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link to="/signup" className="btn-primary text-lg px-8 py-4 shadow-2xl shadow-primary-500/20 hover:shadow-primary-500/40 transition-shadow">
                 Get Started Free →
               </Link>
               <a href="#how-it-works" className="btn-secondary text-lg px-8 py-4">
@@ -36,16 +47,16 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* Stats Section with Glass Cards & Distinct Hierarchy */}
+        {/* Stats Section */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-slide-up stagger-1">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="card-glass p-6 rounded-2xl border-white/10 bg-gradient-to-br from-purple-900/20 to-surface-900/80 hover:border-purple-500/40 transition-all flex items-center gap-5">
               <div className="w-14 h-14 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-3xl shrink-0">
                 💼
               </div>
               <div className="text-left">
-                <div className="text-3xl font-extrabold text-white gradient-text">10,000+</div>
-                <div className="text-gray-400 text-xs font-semibold uppercase tracking-wider mt-1">Curated Job Openings</div>
+                <div className="text-3xl font-extrabold text-white gradient-text">{stats.totalApplications.toLocaleString()}</div>
+                <div className="text-gray-400 text-xs font-semibold uppercase tracking-wider mt-1">Total Applications</div>
               </div>
             </div>
 
@@ -54,8 +65,8 @@ export default function Landing() {
                 👥
               </div>
               <div className="text-left">
-                <div className="text-3xl font-extrabold text-white gradient-text">5,000+</div>
-                <div className="text-gray-400 text-xs font-semibold uppercase tracking-wider mt-1">Freshers Employed</div>
+                <div className="text-3xl font-extrabold text-white gradient-text">{stats.totalUsers.toLocaleString()}</div>
+                <div className="text-gray-400 text-xs font-semibold uppercase tracking-wider mt-1">Registered Users</div>
               </div>
             </div>
 
@@ -64,14 +75,14 @@ export default function Landing() {
                 ⚡
               </div>
               <div className="text-left">
-                <div className="text-3xl font-extrabold text-white gradient-text">50+</div>
+                <div className="text-3xl font-extrabold text-white gradient-text">{stats.platforms}</div>
                 <div className="text-gray-400 text-xs font-semibold uppercase tracking-wider mt-1">Platforms Supported</div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Features Section ("Why Choose Job Grid?") */}
+        {/* Features Section */}
         <section id="features" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center mb-16 animate-slide-up stagger-2">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white">Why Choose Job Grid?</h2>

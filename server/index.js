@@ -9,7 +9,7 @@ import fs from 'fs';
 dotenv.config();
 
 // Initialize database
-import './db/setup.js';
+import db from './db/setup.js';
 
 // Route imports
 import authRoutes from './routes/auth.js';
@@ -81,6 +81,19 @@ app.use('/uploads', express.static('uploads'));
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date() });
+});
+
+// Public stats for Landing page (real data from DB)
+app.get('/api/stats', (req, res) => {
+  try {
+    const totalUsers = db.prepare('SELECT COUNT(*) as count FROM users').get().count;
+    const totalApplications = db.prepare('SELECT COUNT(*) as count FROM applications').get().count;
+    // ATS platforms: Greenhouse, Lever, Ashby, Workable, LinkedIn (external), Naukri (external)
+    const platforms = 6;
+    res.json({ totalUsers, totalApplications, platforms });
+  } catch (error) {
+    res.json({ totalUsers: 0, totalApplications: 0, platforms: 6 });
+  }
 });
 
 // Routes
