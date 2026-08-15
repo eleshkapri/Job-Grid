@@ -1,10 +1,16 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from '../features/auth/AuthContext';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { isAuthenticated, user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <nav className="sticky top-0 z-50 bg-white/5 backdrop-blur-xl border-b border-white/10">
@@ -39,7 +45,7 @@ export default function Navbar() {
                     {user?.name?.charAt(0) || 'U'}
                   </div>
                 </Link>
-                <button onClick={logout} className="text-gray-400 hover:text-white text-sm">Logout</button>
+                <button onClick={handleLogout} className="text-gray-400 hover:text-white text-sm">Logout</button>
               </div>
             ) : (
               <div className="flex items-center gap-4">
@@ -72,7 +78,7 @@ export default function Navbar() {
                 <Link to="/jobs" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Jobs</Link>
                 <Link to="/applications" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Applications</Link>
                 <Link to="/profile" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Profile</Link>
-                <button onClick={logout} className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium w-full text-left">Logout</button>
+                <button onClick={handleLogout} className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium w-full text-left">Logout</button>
               </>
             ) : (
               <>

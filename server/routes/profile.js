@@ -47,9 +47,11 @@ const upload = multer({
 // GET /api/profile
 router.get('/', authenticateToken, (req, res) => {
   try {
-    const profile = db.prepare('SELECT * FROM profiles WHERE user_id = ?').get(req.user.id);
+    let profile = db.prepare('SELECT * FROM profiles WHERE user_id = ?').get(req.user.id);
     if (!profile) {
-      return res.status(404).json({ error: 'Profile not found' });
+      // Auto-create a blank profile row for new users
+      db.prepare('INSERT INTO profiles (user_id) VALUES (?)').run(req.user.id);
+      profile = db.prepare('SELECT * FROM profiles WHERE user_id = ?').get(req.user.id);
     }
     res.json(profile);
   } catch (error) {
@@ -62,6 +64,12 @@ router.get('/', authenticateToken, (req, res) => {
 router.put('/', authenticateToken, (req, res) => {
   try {
     const { phone, location, preferred_location, remote_only, headline, summary, skills, experience, education, linkedin_url, portfolio_url } = req.body;
+
+    // Ensure a profile row exists before updating
+    const existing = db.prepare('SELECT id FROM profiles WHERE user_id = ?').get(req.user.id);
+    if (!existing) {
+      db.prepare('INSERT INTO profiles (user_id) VALUES (?)').run(req.user.id);
+    }
     
     db.prepare(`
       UPDATE profiles 
