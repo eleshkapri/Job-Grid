@@ -119,12 +119,13 @@ export default function Jobs() {
             job_title: job.role || job.title,
             company: job.company,
             source: job.source,
-            url: job.url || job.applyUrl
+            source_url: job.url || job.applyUrl,
+            status: 'applied'
           })
         });
       }
     } catch (err) {
-      console.log('Track application local fallback');
+      console.log('Track application error:', err);
     }
 
     setToast(`Applied to ${job.role || job.title} at ${job.company}! Added to tracker.`);

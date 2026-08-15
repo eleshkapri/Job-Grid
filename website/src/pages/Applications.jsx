@@ -12,36 +12,37 @@ export default function Applications() {
 
   const token = localStorage.getItem('token');
 
-  useEffect(() => {
-    async function fetchApps() {
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-      try {
-        const res = await fetch('/api/applications', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data)) {
-            setApps(data.map(item => ({
-              id: item.id,
-              role: item.job_title || item.title || item.role,
-              company: item.company,
-              date: (item.applied_at || item.created_at || item.date || '').split('T')[0] || new Date().toISOString().split('T')[0],
-              status: item.status ? (item.status.charAt(0).toUpperCase() + item.status.slice(1)) : 'Applied',
-              source: item.source || 'Manual',
-              note: item.notes || item.note || ''
-            })));
-          }
-        }
-      } catch (err) {
-        console.error('Error fetching applications:', err);
-      } finally {
-        setLoading(false);
-      }
+  const fetchApps = async () => {
+    if (!token) {
+      setLoading(false);
+      return;
     }
+    try {
+      const res = await fetch('/api/applications', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setApps(data.map(item => ({
+            id: item.id,
+            role: item.job_title || item.title || item.role,
+            company: item.company,
+            date: (item.applied_at || item.created_at || item.date || '').split('T')[0] || new Date().toISOString().split('T')[0],
+            status: item.status ? (item.status.charAt(0).toUpperCase() + item.status.slice(1)) : 'Applied',
+            source: item.source || 'Manual',
+            note: item.notes || item.note || ''
+          })));
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching applications:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchApps();
   }, [token]);
 
@@ -75,32 +76,22 @@ export default function Applications() {
           const created = await res.json();
           setApps(prev => [{
             id: created.id || Date.now(),
-            role: newApp.role,
-            company: newApp.company,
-            date: new Date().toISOString().split('T')[0],
-            status: newApp.status,
-            source: newApp.source,
-            note: newApp.note
+            role: created.job_title || newApp.role,
+            company: created.company || newApp.company,
+            date: (created.applied_at || '').split('T')[0] || new Date().toISOString().split('T')[0],
+            status: created.status ? (created.status.charAt(0).toUpperCase() + created.status.slice(1)) : newApp.status,
+            source: created.source || newApp.source,
+            note: created.notes || newApp.note
           }, ...prev]);
+          showToastMsg('Application added and saved in real time!');
         }
       } catch (err) {
         console.error('Failed to sync application to API:', err);
       }
-    } else {
-      setApps(prev => [{
-        id: Date.now(),
-        role: newApp.role,
-        company: newApp.company,
-        date: new Date().toISOString().split('T')[0],
-        status: newApp.status,
-        source: newApp.source,
-        note: newApp.note
-      }, ...prev]);
     }
 
     setShowAddModal(false);
     setNewApp({ role: '', company: '', source: 'LinkedIn', status: 'Applied', note: '' });
-    showToastMsg('Application added successfully!');
   };
 
   const handleStatusChange = async (id, newStatus) => {
@@ -126,21 +117,32 @@ export default function Applications() {
   const handleDelete = async (id) => {
     setApps(prev => prev.filter(a => a.id !== id));
     showToastMsg('Application deleted');
+
+    if (token) {
+      try {
+        await fetch(`/api/applications/${id}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      } catch (err) {
+        console.error('Failed to delete application on server:', err);
+      }
+    }
   };
 
   const filteredApps = apps.filter(app => {
-    const matchesSearch = app.role.toLowerCase().includes(search.toLowerCase()) ||
-                          app.company.toLowerCase().includes(search.toLowerCase()) ||
-                          app.source.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch = (app.role || '').toLowerCase().includes(search.toLowerCase()) ||
+                          (app.company || '').toLowerCase().includes(search.toLowerCase()) ||
+                          (app.source || '').toLowerCase().includes(search.toLowerCase());
     
     if (!matchesSearch) return false;
     if (activeTab === 'All') return true;
-    return app.status.toLowerCase() === activeTab.toLowerCase();
+    return (app.status || '').toLowerCase() === activeTab.toLowerCase();
   });
 
   const countByStatus = (status) => {
     if (status === 'All') return apps.length;
-    return apps.filter(a => a.status.toLowerCase() === status.toLowerCase()).length;
+    return apps.filter(a => (a.status || '').toLowerCase() === status.toLowerCase()).length;
   };
 
   const tabs = ['All', 'Applied', 'Interview', 'Offer', 'Rejected'];
@@ -334,6 +336,8 @@ export default function Applications() {
                     <option value="Naukri">Naukri</option>
                     <option value="Greenhouse">Greenhouse</option>
                     <option value="Lever">Lever</option>
+                    <option value="Ashby">Ashby</option>
+                    <option value="Workable">Workable</option>
                     <option value="Manual">Manual</option>
                   </select>
                 </div>
@@ -357,7 +361,7 @@ export default function Applications() {
                 <textarea 
                   value={newApp.note}
                   onChange={(e) => setNewApp({ ...newApp, note: e.target.value })}
-                  placeholder="e.g. Applied via Job Grid extension..." 
+                  placeholder="e.g. Applied via Job Grid..." 
                   className="input-field min-h-[80px]"
                 />
               </div>

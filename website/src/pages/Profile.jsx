@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from 'react'
-import DashboardLayout from '../layouts/DashboardLayout'
-import { useAuth } from '../features/auth/AuthContext'
+import { useState, useRef, useEffect } from 'react';
+import DashboardLayout from '../layouts/DashboardLayout';
+import { useAuth } from '../features/auth/AuthContext';
 
 const POPULAR_LOCATIONS = [
   'Remote',
@@ -12,7 +12,11 @@ const POPULAR_LOCATIONS = [
   'United States',
   'United Kingdom',
   'Canada',
-]
+];
+
+function capitalizeWords(str) {
+  return str.replace(/\b\w/g, char => char.toUpperCase());
+}
 
 const initialProfile = {
   name: '',
@@ -28,21 +32,24 @@ const initialProfile = {
   portfolio_url: '',
   education: [],
   experience: [],
-}
+  resume_path: ''
+};
 
 export default function Profile() {
-  const [profile, setProfile] = useState(initialProfile)
-  const [customLocInput, setCustomLocInput] = useState('')
-  const [newSkill, setNewSkill] = useState('')
-  const [saving, setSaving] = useState(false)
-  const [saved, setSaved] = useState(false)
-  const fileRef = useRef(null)
+  const [profile, setProfile] = useState(initialProfile);
+  const [customLocInput, setCustomLocInput] = useState('');
+  const [newSkill, setNewSkill] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [uploadingResume, setUploadingResume] = useState(false);
+  const [resumeName, setResumeName] = useState('');
+  const [toast, setToast] = useState('');
+  const fileRef = useRef(null);
 
-  const { user, token } = useAuth()
+  const { user, token, updateUser } = useAuth();
 
   useEffect(() => {
     async function fetchProfile() {
-      // Pre-fill from auth context
       if (user) {
         setProfile(prev => ({
           ...prev,
@@ -67,73 +74,117 @@ export default function Profile() {
             education: typeof data.education === 'string' ? JSON.parse(data.education) : (data.education || prev.education),
             experience: typeof data.experience === 'string' ? JSON.parse(data.experience) : (data.experience || prev.experience),
             preferred_location: data.preferred_location || prev.preferred_location,
-            remote_only: Boolean(data.remote_only)
+            remote_only: Boolean(data.remote_only),
+            resume_path: data.resume_path || prev.resume_path
           }));
+          if (data.resume_path) {
+            const parts = data.resume_path.split(/[/\\]/);
+            setResumeName(parts[parts.length - 1]);
+          }
         }
       } catch (err) {
-        console.log('Using default local profile state');
+        console.error('Error loading profile:', err);
       }
     }
     fetchProfile();
   }, [token, user]);
 
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 3000);
+  };
+
   const updateField = (field, value) => {
-    setProfile(prev => ({ ...prev, [field]: value }))
-  }
+    setProfile(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleNameChange = (e) => {
+    const capitalized = capitalizeWords(e.target.value);
+    setProfile(prev => ({ ...prev, name: capitalized }));
+  };
 
   const addSkill = (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (newSkill.trim() && !profile.skills.includes(newSkill.trim())) {
-      setProfile(prev => ({ ...prev, skills: [...prev.skills, newSkill.trim()] }))
-      setNewSkill('')
+      setProfile(prev => ({ ...prev, skills: [...prev.skills, newSkill.trim()] }));
+      setNewSkill('');
     }
-  }
+  };
 
   const removeSkill = (skill) => {
-    setProfile(prev => ({ ...prev, skills: prev.skills.filter(s => s !== skill) }))
-  }
+    setProfile(prev => ({ ...prev, skills: prev.skills.filter(s => s !== skill) }));
+  };
 
   const addEducation = () => {
     setProfile(prev => ({
       ...prev,
       education: [...prev.education, { school: '', degree: '', year: '' }]
-    }))
-  }
+    }));
+  };
 
   const updateEducation = (index, field, value) => {
     setProfile(prev => ({
       ...prev,
       education: prev.education.map((edu, i) => i === index ? { ...edu, [field]: value } : edu)
-    }))
-  }
+    }));
+  };
 
   const removeEducation = (index) => {
-    setProfile(prev => ({ ...prev, education: prev.education.filter((_, i) => i !== index) }))
-  }
+    setProfile(prev => ({ ...prev, education: prev.education.filter((_, i) => i !== index) }));
+  };
 
   const addExperience = () => {
     setProfile(prev => ({
       ...prev,
       experience: [...prev.experience, { company: '', role: '', duration: '' }]
-    }))
-  }
+    }));
+  };
 
   const updateExperience = (index, field, value) => {
     setProfile(prev => ({
       ...prev,
       experience: prev.experience.map((exp, i) => i === index ? { ...exp, [field]: value } : exp)
-    }))
-  }
+    }));
+  };
 
   const removeExperience = (index) => {
-    setProfile(prev => ({ ...prev, experience: prev.experience.filter((_, i) => i !== index) }))
-  }
+    setProfile(prev => ({ ...prev, experience: prev.experience.filter((_, i) => i !== index) }));
+  };
+
+  const handleResumeFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !token) return;
+
+    const formData = new FormData();
+    formData.append('resume', file);
+
+    setUploadingResume(true);
+    try {
+      const res = await fetch('/api/profile/resume', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setProfile(prev => ({ ...prev, resume_path: data.resume_path }));
+        setResumeName(file.name);
+        showToast('Resume uploaded successfully!');
+      } else {
+        showToast(data.error || 'Failed to upload resume');
+      }
+    } catch (err) {
+      showToast('Error uploading resume file');
+    } finally {
+      setUploadingResume(false);
+    }
+  };
 
   const handleSave = async () => {
-    setSaving(true)
+    setSaving(true);
     if (token) {
       try {
-        await fetch('/api/profile', {
+        const res = await fetch('/api/profile', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -146,34 +197,59 @@ export default function Profile() {
             experience: JSON.stringify(profile.experience)
           })
         });
+        if (res.ok) {
+          const updated = await res.json();
+          setProfile(prev => ({
+            ...prev,
+            ...updated,
+            skills: typeof updated.skills === 'string' ? JSON.parse(updated.skills) : (updated.skills || prev.skills),
+            education: typeof updated.education === 'string' ? JSON.parse(updated.education) : (updated.education || prev.education),
+            experience: typeof updated.experience === 'string' ? JSON.parse(updated.experience) : (updated.experience || prev.experience),
+            preferred_location: updated.preferred_location || prev.preferred_location,
+            remote_only: Boolean(updated.remote_only)
+          }));
+          if (updateUser) {
+            updateUser({ name: updated.name, email: updated.email });
+          }
+          showToast('Profile updated live across all sections!');
+        }
       } catch (err) {
         console.error('API profile save error:', err);
       }
-    } else {
-      await new Promise(r => setTimeout(r, 600));
     }
-    setSaving(false)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 3000)
-  }
+    setSaving(false);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 3000);
+  };
+
+  const avatarInitial = (profile.name || user?.name || 'U').trim().charAt(0).toUpperCase();
 
   return (
     <DashboardLayout>
+      {toast && (
+        <div className="fixed top-20 right-6 z-50 bg-primary-600 text-white px-5 py-3 rounded-xl shadow-2xl border border-primary-400 animate-slide-down flex items-center gap-2">
+          <span>✓</span> {toast}
+        </div>
+      )}
+
       <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
         {/* Profile Header */}
         <div className="card-glass flex flex-col sm:flex-row items-center gap-6 animate-slide-up">
           <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary-600 to-accent-400 flex items-center justify-center text-3xl font-bold text-white shrink-0 shadow-lg shadow-primary-500/20">
-            {profile.name.charAt(0)}
+            {avatarInitial}
           </div>
-          <div className="text-center sm:text-left">
-            <h1 className="text-2xl font-bold text-white">{profile.name}</h1>
-            <p className="text-surface-100/60 mt-1">{profile.headline}</p>
+          <div className="text-center sm:text-left flex-1">
+            <h1 className="text-2xl font-bold text-white">{profile.name || user?.name || 'Your Profile'}</h1>
+            <p className="text-surface-100/60 mt-1">{profile.headline || 'Add a professional headline...'}</p>
             <div className="flex flex-wrap gap-2 mt-3 justify-center sm:justify-start">
               {profile.preferred_location && (
                 <span className="badge badge-success">📍 {profile.preferred_location}</span>
               )}
               {profile.remote_only && (
                 <span className="badge badge-warning">⚡ Remote Only</span>
+              )}
+              {resumeName && (
+                <span className="badge badge-primary">📄 Resume Uploaded</span>
               )}
             </div>
           </div>
@@ -187,19 +263,19 @@ export default function Profile() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm text-surface-100/50 mb-1.5">Full Name</label>
-              <input className="input-field" value={profile.name} onChange={e => updateField('name', e.target.value)} />
+              <input className="input-field" value={profile.name} onChange={handleNameChange} placeholder="e.g. John Doe" />
             </div>
             <div>
               <label className="block text-sm text-surface-100/50 mb-1.5">Email</label>
-              <input className="input-field" type="email" value={profile.email} onChange={e => updateField('email', e.target.value)} />
+              <input className="input-field" type="email" value={profile.email} onChange={e => updateField('email', e.target.value)} placeholder="you@example.com" />
             </div>
             <div>
               <label className="block text-sm text-surface-100/50 mb-1.5">Phone</label>
-              <input className="input-field" value={profile.phone} onChange={e => updateField('phone', e.target.value)} />
+              <input className="input-field" value={profile.phone} onChange={e => updateField('phone', e.target.value)} placeholder="+91 98765 43210" />
             </div>
             <div>
               <label className="block text-sm text-surface-100/50 mb-1.5">Current City</label>
-              <input className="input-field" value={profile.location} onChange={e => updateField('location', e.target.value)} />
+              <input className="input-field" value={profile.location} onChange={e => updateField('location', e.target.value)} placeholder="e.g. Bangalore, India" />
             </div>
           </div>
         </div>
@@ -284,20 +360,20 @@ export default function Profile() {
           <div className="space-y-4">
             <div>
               <label className="block text-sm text-surface-100/50 mb-1.5">Headline</label>
-              <input className="input-field" value={profile.headline} onChange={e => updateField('headline', e.target.value)} />
+              <input className="input-field" value={profile.headline} onChange={e => updateField('headline', e.target.value)} placeholder="e.g. Full Stack Developer | React & Node.js" />
             </div>
             <div>
               <label className="block text-sm text-surface-100/50 mb-1.5">Summary</label>
-              <textarea className="input-field min-h-[100px] resize-y" value={profile.summary} onChange={e => updateField('summary', e.target.value)} />
+              <textarea className="input-field min-h-[100px] resize-y" value={profile.summary} onChange={e => updateField('summary', e.target.value)} placeholder="Brief summary of your experience and interests..." />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm text-surface-100/50 mb-1.5">LinkedIn URL</label>
-                <input className="input-field" value={profile.linkedin_url} onChange={e => updateField('linkedin_url', e.target.value)} />
+                <input className="input-field" value={profile.linkedin_url} onChange={e => updateField('linkedin_url', e.target.value)} placeholder="https://linkedin.com/in/username" />
               </div>
               <div>
                 <label className="block text-sm text-surface-100/50 mb-1.5">Portfolio URL</label>
-                <input className="input-field" value={profile.portfolio_url} onChange={e => updateField('portfolio_url', e.target.value)} />
+                <input className="input-field" value={profile.portfolio_url} onChange={e => updateField('portfolio_url', e.target.value)} placeholder="https://yourportfolio.com" />
               </div>
             </div>
           </div>
@@ -334,10 +410,10 @@ export default function Profile() {
             {profile.education.map((edu, i) => (
               <div key={i} className="p-4 rounded-xl bg-white/[0.03] border border-white/5 space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <input className="input-field text-sm" placeholder="School" value={edu.school} onChange={e => updateEducation(i, 'school', e.target.value)} />
-                  <input className="input-field text-sm" placeholder="Degree" value={edu.degree} onChange={e => updateEducation(i, 'degree', e.target.value)} />
+                  <input className="input-field text-sm" placeholder="School / University" value={edu.school} onChange={e => updateEducation(i, 'school', e.target.value)} />
+                  <input className="input-field text-sm" placeholder="Degree / Field" value={edu.degree} onChange={e => updateEducation(i, 'degree', e.target.value)} />
                   <div className="flex gap-2">
-                    <input className="input-field text-sm flex-1" placeholder="Year" value={edu.year} onChange={e => updateEducation(i, 'year', e.target.value)} />
+                    <input className="input-field text-sm flex-1" placeholder="Graduation Year" value={edu.year} onChange={e => updateEducation(i, 'year', e.target.value)} />
                     <button onClick={() => removeEducation(i)} className="text-red-400 hover:text-red-300 transition-colors px-2">✕</button>
                   </div>
                 </div>
@@ -359,9 +435,9 @@ export default function Profile() {
               <div key={i} className="p-4 rounded-xl bg-white/[0.03] border border-white/5 space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <input className="input-field text-sm" placeholder="Company" value={exp.company} onChange={e => updateExperience(i, 'company', e.target.value)} />
-                  <input className="input-field text-sm" placeholder="Role" value={exp.role} onChange={e => updateExperience(i, 'role', e.target.value)} />
+                  <input className="input-field text-sm" placeholder="Role / Position" value={exp.role} onChange={e => updateExperience(i, 'role', e.target.value)} />
                   <div className="flex gap-2">
-                    <input className="input-field text-sm flex-1" placeholder="Duration" value={exp.duration} onChange={e => updateExperience(i, 'duration', e.target.value)} />
+                    <input className="input-field text-sm flex-1" placeholder="Duration (e.g. 2023 - Present)" value={exp.duration} onChange={e => updateExperience(i, 'duration', e.target.value)} />
                     <button onClick={() => removeExperience(i)} className="text-red-400 hover:text-red-300 transition-colors px-2">✕</button>
                   </div>
                 </div>
@@ -379,10 +455,12 @@ export default function Profile() {
             onClick={() => fileRef.current?.click()}
             className="border-2 border-dashed border-white/10 rounded-xl p-8 text-center cursor-pointer hover:border-primary-400/50 hover:bg-white/[0.02] transition-all"
           >
-            <div className="text-4xl mb-3">📄</div>
-            <p className="text-white font-medium">Click to upload your resume</p>
+            <div className="text-4xl mb-3">{uploadingResume ? '⏳' : (resumeName ? '✅' : '📄')}</div>
+            <p className="text-white font-medium">
+              {uploadingResume ? 'Uploading resume...' : (resumeName ? `Uploaded: ${resumeName}` : 'Click to upload your resume')}
+            </p>
             <p className="text-surface-100/40 text-sm mt-1">PDF, DOC, or DOCX (max 5MB)</p>
-            <input ref={fileRef} type="file" accept=".pdf,.doc,.docx" className="hidden" />
+            <input ref={fileRef} type="file" accept=".pdf,.doc,.docx" onChange={handleResumeFileChange} className="hidden" />
           </div>
         </div>
 
@@ -397,5 +475,5 @@ export default function Profile() {
         </div>
       </div>
     </DashboardLayout>
-  )
+  );
 }

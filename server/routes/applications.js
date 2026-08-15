@@ -11,9 +11,9 @@ router.get('/', authenticateToken, (req, res) => {
     let query = 'SELECT * FROM applications WHERE user_id = ?';
     const params = [req.user.id];
 
-    if (status) {
-      query += ' AND status = ?';
-      params.push(status);
+    if (status && status.toLowerCase() !== 'all') {
+      query += ' AND LOWER(status) = ?';
+      params.push(status.toLowerCase());
     }
     
     query += ' ORDER BY applied_at DESC';
@@ -29,7 +29,7 @@ router.get('/', authenticateToken, (req, res) => {
 // POST /api/applications
 router.post('/', authenticateToken, (req, res) => {
   try {
-    const { job_title, company, source, source_url, status, notes } = req.body;
+    const { job_title, company, source, source_url, url, status, notes } = req.body;
 
     if (!job_title || !company) {
       return res.status(400).json({ error: 'job_title and company are required' });
@@ -39,9 +39,13 @@ router.post('/', authenticateToken, (req, res) => {
       INSERT INTO applications (user_id, job_title, company, source, source_url, status, notes)
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `).run(
-      req.user.id, job_title, company, 
-      source || null, source_url || null, 
-      status || 'applied', notes || null
+      req.user.id, 
+      job_title.trim(), 
+      company.trim(), 
+      source || 'Manual', 
+      source_url || url || null, 
+      (status || 'applied').toLowerCase(), 
+      notes || null
     );
 
     const newApp = db.prepare('SELECT * FROM applications WHERE id = ?').get(result.lastInsertRowid);
@@ -68,7 +72,7 @@ router.patch('/:id', authenticateToken, (req, res) => {
 
     if (status !== undefined) {
       updateFields.push('status = ?');
-      params.push(status);
+      params.push(status.toLowerCase());
     }
     if (notes !== undefined) {
       updateFields.push('notes = ?');
@@ -84,6 +88,22 @@ router.patch('/:id', authenticateToken, (req, res) => {
     res.json(updatedApp);
   } catch (error) {
     console.error('Update application error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// DELETE /api/applications/:id
+router.delete('/:id', authenticateToken, (req, res) => {
+  try {
+    const app = db.prepare('SELECT * FROM applications WHERE id = ? AND user_id = ?').get(req.params.id, req.user.id);
+    if (!app) {
+      return res.status(404).json({ error: 'Application not found' });
+    }
+
+    db.prepare('DELETE FROM applications WHERE id = ? AND user_id = ?').run(req.params.id, req.user.id);
+    res.json({ success: true, message: 'Application deleted successfully' });
+  } catch (error) {
+    console.error('Delete application error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

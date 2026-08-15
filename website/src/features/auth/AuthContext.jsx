@@ -26,7 +26,7 @@ export function AuthProvider({ children }) {
         }
       } catch (err) {
         console.error('Auth check error:', err);
-        setUser({ name: 'Candidate Student', email: 'student@example.com' });
+        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -72,6 +72,10 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const updateUser = (updatedFields) => {
+    setUser(prev => prev ? { ...prev, ...updatedFields } : updatedFields);
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
     setToken(null);
@@ -86,6 +90,7 @@ export function AuthProvider({ children }) {
       isAuthenticated: !!token,
       login,
       signup,
+      updateUser,
       logout
     }}>
       {children}

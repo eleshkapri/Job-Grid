@@ -44,16 +44,26 @@ const upload = multer({
   }
 });
 
+// Helper to get unified profile with user details
+function getFullUserProfile(userId) {
+  const user = db.prepare('SELECT id, name, email FROM users WHERE id = ?').get(userId);
+  let profile = db.prepare('SELECT * FROM profiles WHERE user_id = ?').get(userId);
+  if (!profile) {
+    db.prepare('INSERT INTO profiles (user_id) VALUES (?)').run(userId);
+    profile = db.prepare('SELECT * FROM profiles WHERE user_id = ?').get(userId);
+  }
+  return {
+    ...profile,
+    name: user ? user.name : '',
+    email: user ? user.email : ''
+  };
+}
+
 // GET /api/profile
 router.get('/', authenticateToken, (req, res) => {
   try {
-    let profile = db.prepare('SELECT * FROM profiles WHERE user_id = ?').get(req.user.id);
-    if (!profile) {
-      // Auto-create a blank profile row for new users
-      db.prepare('INSERT INTO profiles (user_id) VALUES (?)').run(req.user.id);
-      profile = db.prepare('SELECT * FROM profiles WHERE user_id = ?').get(req.user.id);
-    }
-    res.json(profile);
+    const fullProfile = getFullUserProfile(req.user.id);
+    res.json(fullProfile);
   } catch (error) {
     console.error('Get profile error:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -63,14 +73,24 @@ router.get('/', authenticateToken, (req, res) => {
 // PUT /api/profile
 router.put('/', authenticateToken, (req, res) => {
   try {
-    const { phone, location, preferred_location, remote_only, headline, summary, skills, experience, education, linkedin_url, portfolio_url } = req.body;
+    const { name, email, phone, location, preferred_location, remote_only, headline, summary, skills, experience, education, linkedin_url, portfolio_url } = req.body;
 
-    // Ensure a profile row exists before updating
+    // 1. Update users table if name or email changed
+    if (name) {
+      const formattedName = name.trim().replace(/\b\w/g, c => c.toUpperCase());
+      db.prepare('UPDATE users SET name = ? WHERE id = ?').run(formattedName, req.user.id);
+    }
+    if (email) {
+      db.prepare('UPDATE users SET email = ? WHERE id = ?').run(email.trim().toLowerCase(), req.user.id);
+    }
+
+    // 2. Ensure profile row exists
     const existing = db.prepare('SELECT id FROM profiles WHERE user_id = ?').get(req.user.id);
     if (!existing) {
       db.prepare('INSERT INTO profiles (user_id) VALUES (?)').run(req.user.id);
     }
     
+    // 3. Update profiles table
     db.prepare(`
       UPDATE profiles 
       SET phone = ?, location = ?, preferred_location = ?, remote_only = ?, 
@@ -92,8 +112,8 @@ router.put('/', authenticateToken, (req, res) => {
       req.user.id
     );
     
-    const updatedProfile = db.prepare('SELECT * FROM profiles WHERE user_id = ?').get(req.user.id);
-    res.json(updatedProfile);
+    const updatedFullProfile = getFullUserProfile(req.user.id);
+    res.json(updatedFullProfile);
   } catch (error) {
     console.error('Update profile error:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -117,9 +137,17 @@ router.post('/resume', authenticateToken, (req, res) => {
     }
     
     const resumePath = req.file.path;
+    const originalName = req.file.originalname;
+
+    // Ensure profile row exists
+    const existing = db.prepare('SELECT id FROM profiles WHERE user_id = ?').get(req.user.id);
+    if (!existing) {
+      db.prepare('INSERT INTO profiles (user_id) VALUES (?)').run(req.user.id);
+    }
+
     db.prepare('UPDATE profiles SET resume_path = ?, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?').run(resumePath, req.user.id);
     
-    res.json({ message: 'Resume uploaded successfully', resume_path: resumePath });
+    res.json({ message: 'Resume uploaded successfully', resume_path: resumePath, filename: originalName });
   });
 });
 
