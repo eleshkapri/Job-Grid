@@ -8,25 +8,45 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [showAiModal, setShowAiModal] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [visible, setVisible] = useState(true);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('');
+  
+  const lastScrollY = useRef(0);
   const dropdownRef = useRef(null);
 
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Handle scroll detection for dynamic glass elevation & active section observer
+  // Handle scroll detection for dynamic glass elevation, scroll direction (hide on scroll down, reveal on scroll up)
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      const currentScrollY = window.scrollY;
+
+      // Elevation style when scrolled
+      setScrolled(currentScrollY > 20);
+
+      // Smart navbar visibility:
+      // Always show when near top (< 100px) or if menu is open
+      if (currentScrollY < 100 || isOpen || userDropdownOpen) {
+        setVisible(true);
+      } else if (currentScrollY > lastScrollY.current && currentScrollY > 120) {
+        // Scrolling down -> hide navbar
+        setVisible(false);
+      } else if (currentScrollY < lastScrollY.current) {
+        // Scrolling up -> reveal navbar
+        setVisible(true);
+      }
+
+      lastScrollY.current = currentScrollY;
 
       // Detect active section on landing page
       if (location.pathname === '/') {
         const featuresEl = document.getElementById('features');
         const howItWorksEl = document.getElementById('how-it-works');
 
-        const scrollPos = window.scrollY + 200;
+        const scrollPos = currentScrollY + 200;
 
         if (featuresEl && scrollPos >= featuresEl.offsetTop) {
           setActiveSection('features');
@@ -42,7 +62,7 @@ export default function Navbar() {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [location.pathname]);
+  }, [location.pathname, isOpen, userDropdownOpen]);
 
   // Handle click outside user dropdown
   useEffect(() => {
@@ -109,7 +129,10 @@ export default function Navbar() {
 
   return (
     <>
-      <header
+      <motion.header
+        initial={{ y: 0 }}
+        animate={{ y: visible ? 0 : -100 }}
+        transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
         className={`sticky top-0 z-40 w-full transition-all duration-300 ${
           scrolled ? 'pt-3 pb-2' : 'pt-5 pb-3'
         }`}
@@ -411,7 +434,7 @@ export default function Navbar() {
             </AnimatePresence>
           </nav>
         </div>
-      </header>
+      </motion.header>
 
       {/* Global AI Core Sync Modal */}
       <AiCoreSyncModal isOpen={showAiModal} onClose={() => setShowAiModal(false)} />
