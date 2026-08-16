@@ -6,7 +6,7 @@ import * as THREE from 'three';
 // 1. Digital Core Icosahedron with Balanced Proportions
 function CoreSphere({ isMobile }) {
   const meshRef = useRef(null);
-  const radius = isMobile ? 1.05 : 1.35;
+  const radius = isMobile ? 0.95 : 1.2;
 
   useFrame((state, delta) => {
     if (meshRef.current) {
@@ -16,7 +16,7 @@ function CoreSphere({ isMobile }) {
   });
 
   return (
-    <Float speed={2.5} rotationIntensity={1.2} floatIntensity={1.5}>
+    <Float speed={2.5} rotationIntensity={1.2} floatIntensity={1.4}>
       <mesh ref={meshRef}>
         <icosahedronGeometry args={[radius, 16]} />
         <MeshDistortMaterial
@@ -39,7 +39,7 @@ function OrbitingRings({ isMobile }) {
   const ring1Ref = useRef(null);
   const ring2Ref = useRef(null);
   const ring3Ref = useRef(null);
-  const scale = isMobile ? 0.75 : 1;
+  const scale = isMobile ? 0.7 : 0.92;
 
   useFrame((state, delta) => {
     if (ring1Ref.current) ring1Ref.current.rotation.z += delta * 0.6;
@@ -51,21 +51,21 @@ function OrbitingRings({ isMobile }) {
     <group scale={scale}>
       <group ref={ring1Ref} rotation={[Math.PI / 4, Math.PI / 6, 0]}>
         <mesh>
-          <torusGeometry args={[2.5, 0.02, 16, 100]} />
+          <torusGeometry args={[2.3, 0.02, 16, 100]} />
           <meshStandardMaterial color="#a855f7" emissive="#a855f7" emissiveIntensity={1} />
         </mesh>
       </group>
 
       <group ref={ring2Ref} rotation={[-Math.PI / 3, 0, Math.PI / 4]}>
         <mesh>
-          <torusGeometry args={[2.9, 0.018, 16, 100]} />
+          <torusGeometry args={[2.7, 0.018, 16, 100]} />
           <meshStandardMaterial color="#38bdf8" emissive="#38bdf8" emissiveIntensity={1} />
         </mesh>
       </group>
 
       <group ref={ring3Ref} rotation={[0, Math.PI / 3, -Math.PI / 6]}>
         <mesh>
-          <torusGeometry args={[3.3, 0.015, 16, 100]} />
+          <torusGeometry args={[3.1, 0.015, 16, 100]} />
           <meshStandardMaterial color="#818cf8" emissive="#818cf8" emissiveIntensity={0.9} />
         </mesh>
       </group>
@@ -76,13 +76,13 @@ function OrbitingRings({ isMobile }) {
 // 3. Floating Ambient Particles Cloud
 function ParticleField({ isMobile }) {
   const particlesRef = useRef(null);
-  const count = isMobile ? 180 : 320;
+  const count = isMobile ? 160 : 300;
 
   const positions = new Float32Array(count * 3);
   for (let i = 0; i < count * 3; i += 3) {
-    positions[i] = (Math.random() - 0.5) * 12;
-    positions[i + 1] = (Math.random() - 0.5) * 12;
-    positions[i + 2] = (Math.random() - 0.5) * 12;
+    positions[i] = (Math.random() - 0.5) * 11;
+    positions[i + 1] = (Math.random() - 0.5) * 11;
+    positions[i + 2] = (Math.random() - 0.5) * 11;
   }
 
   useFrame((state, delta) => {
@@ -97,7 +97,7 @@ function ParticleField({ isMobile }) {
       <PointMaterial
         transparent
         color="#c084fc"
-        size={isMobile ? 0.05 : 0.055}
+        size={isMobile ? 0.045 : 0.05}
         sizeAttenuation={true}
         depthWrite={false}
         opacity={0.8}
@@ -151,14 +151,14 @@ export default function HeroScene() {
   }, []);
 
   return (
-    <div className="w-full h-full min-h-[300px] sm:min-h-[380px] lg:min-h-[460px] relative pointer-events-auto flex items-center justify-center select-none touch-pan-y">
+    <div className="w-full h-full min-h-[300px] sm:min-h-[380px] lg:min-h-[480px] relative pointer-events-auto flex items-center justify-center select-none touch-pan-y">
       <Suspense fallback={
         <div className="w-full h-full flex items-center justify-center">
           <div className="w-16 h-16 rounded-full border-2 border-primary-500/30 border-t-primary-500 animate-spin" />
         </div>
       }>
         <Canvas
-          camera={{ position: [0, 0, isMobile ? 6.8 : 6.2], fov: isMobile ? 48 : 40 }}
+          camera={{ position: [0, 0, isMobile ? 7.2 : 6.8], fov: isMobile ? 45 : 36 }}
           gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
           className="w-full h-full"
         >
