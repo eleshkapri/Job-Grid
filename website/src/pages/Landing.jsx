@@ -65,7 +65,7 @@ export default function Landing() {
                 initial="hidden"
                 animate="visible"
                 variants={staggerContainer}
-                className="lg:col-span-7 text-center lg:text-left z-20"
+                className="lg:col-span-6 text-center lg:text-left z-20"
               >
                 {/* Holographic Badge */}
                 <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-900/90 border border-primary-500/40 backdrop-blur-xl shadow-lg shadow-primary-500/10 mb-5 max-w-full">
@@ -137,7 +137,7 @@ export default function Landing() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="lg:col-span-5 relative flex items-center justify-center h-[320px] sm:h-[380px] lg:h-[460px] w-full my-2 lg:my-0"
+                className="lg:col-span-6 relative flex items-center justify-center h-[320px] sm:h-[400px] lg:h-[500px] w-full my-2 lg:my-0"
               >
                 <div className="w-full h-full relative flex items-center justify-center">
                   <HeroScene />
