@@ -177,17 +177,20 @@ export default function Landing() {
               whileInView="visible"
               viewport={{ once: true, margin: "-50px" }}
               variants={staggerContainer}
-              className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6 text-center"
+              className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6"
             >
+              {/* Stat 1 */}
               <motion.div variants={fadeInUp}>
-                <TiltCard maxTilt={10}>
-                  <div className="card-glass p-5 sm:p-6 rounded-2xl border-white/10 flex items-center justify-center gap-4">
-                    <span className="text-3xl sm:text-4xl p-2 rounded-xl bg-primary-500/10 shrink-0">👥</span>
-                    <div className="text-left">
-                      <div className="text-2xl sm:text-4xl font-extrabold text-white gradient-text bg-gradient-to-r from-white to-primary-200">
+                <TiltCard maxTilt={10} className="h-full">
+                  <div className="card-glass p-4 sm:p-6 rounded-2xl border-white/10 flex items-center justify-start sm:justify-center gap-4 sm:gap-5 h-full hover:border-primary-500/40 transition-all">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary-600/30 to-indigo-600/30 border border-primary-500/40 flex items-center justify-center text-2xl sm:text-3xl shrink-0 shadow-lg shadow-primary-500/15">
+                      👥
+                    </div>
+                    <div className="text-left min-w-0">
+                      <div className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-none">
                         {stats.totalUsers.toLocaleString()}
                       </div>
-                      <div className="text-gray-400 text-[11px] sm:text-xs font-bold uppercase tracking-wider mt-0.5">
+                      <div className="text-gray-400 text-[11px] sm:text-xs font-bold uppercase tracking-wider mt-1 sm:mt-1.5 truncate">
                         Active Job Seekers
                       </div>
                     </div>
@@ -195,15 +198,18 @@ export default function Landing() {
                 </TiltCard>
               </motion.div>
 
+              {/* Stat 2 */}
               <motion.div variants={fadeInUp}>
-                <TiltCard maxTilt={10}>
-                  <div className="card-glass p-5 sm:p-6 rounded-2xl border-white/10 flex items-center justify-center gap-4">
-                    <span className="text-3xl sm:text-4xl p-2 rounded-xl bg-accent-500/10 shrink-0">🚀</span>
-                    <div className="text-left">
-                      <div className="text-2xl sm:text-4xl font-extrabold text-white gradient-text bg-gradient-to-r from-white to-accent-200">
+                <TiltCard maxTilt={10} className="h-full">
+                  <div className="card-glass p-4 sm:p-6 rounded-2xl border-white/10 flex items-center justify-start sm:justify-center gap-4 sm:gap-5 h-full hover:border-accent-400/40 transition-all">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-accent-600/30 to-teal-600/30 border border-accent-400/40 flex items-center justify-center text-2xl sm:text-3xl shrink-0 shadow-lg shadow-accent-500/15">
+                      🚀
+                    </div>
+                    <div className="text-left min-w-0">
+                      <div className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-none">
                         {stats.totalApplications.toLocaleString()}
                       </div>
-                      <div className="text-gray-400 text-[11px] sm:text-xs font-bold uppercase tracking-wider mt-0.5">
+                      <div className="text-gray-400 text-[11px] sm:text-xs font-bold uppercase tracking-wider mt-1 sm:mt-1.5 truncate">
                         Applications Tracked
                       </div>
                     </div>
@@ -211,15 +217,18 @@ export default function Landing() {
                 </TiltCard>
               </motion.div>
 
+              {/* Stat 3 */}
               <motion.div variants={fadeInUp}>
-                <TiltCard maxTilt={10}>
-                  <div className="card-glass p-5 sm:p-6 rounded-2xl border-white/10 flex items-center justify-center gap-4">
-                    <span className="text-3xl sm:text-4xl p-2 rounded-xl bg-purple-500/10 shrink-0">🌐</span>
-                    <div className="text-left">
-                      <div className="text-2xl sm:text-4xl font-extrabold text-white gradient-text bg-gradient-to-r from-white to-purple-200">
+                <TiltCard maxTilt={10} className="h-full">
+                  <div className="card-glass p-4 sm:p-6 rounded-2xl border-white/10 flex items-center justify-start sm:justify-center gap-4 sm:gap-5 h-full hover:border-purple-500/40 transition-all">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-purple-600/30 to-pink-600/30 border border-purple-500/40 flex items-center justify-center text-2xl sm:text-3xl shrink-0 shadow-lg shadow-purple-500/15">
+                      🌐
+                    </div>
+                    <div className="text-left min-w-0">
+                      <div className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-none">
                         {stats.platforms}
                       </div>
-                      <div className="text-gray-400 text-[11px] sm:text-xs font-bold uppercase tracking-wider mt-0.5">
+                      <div className="text-gray-400 text-[11px] sm:text-xs font-bold uppercase tracking-wider mt-1 sm:mt-1.5 truncate">
                         Live Platforms Supported
                       </div>
                     </div>
