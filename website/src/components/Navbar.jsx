@@ -9,20 +9,40 @@ export default function Navbar() {
   const [showAiModal, setShowAiModal] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('');
   const dropdownRef = useRef(null);
 
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Handle scroll detection for dynamic glass elevation
+  // Handle scroll detection for dynamic glass elevation & active section observer
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
+
+      // Detect active section on landing page
+      if (location.pathname === '/') {
+        const featuresEl = document.getElementById('features');
+        const howItWorksEl = document.getElementById('how-it-works');
+
+        const scrollPos = window.scrollY + 200;
+
+        if (featuresEl && scrollPos >= featuresEl.offsetTop) {
+          setActiveSection('features');
+        } else if (howItWorksEl && scrollPos >= howItWorksEl.offsetTop) {
+          setActiveSection('how-it-works');
+        } else {
+          setActiveSection('');
+        }
+      } else {
+        setActiveSection('');
+      }
     };
+
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [location.pathname]);
 
   // Handle click outside user dropdown
   useEffect(() => {
@@ -41,6 +61,32 @@ export default function Navbar() {
     navigate('/login');
   };
 
+  // Smooth scroll handler for anchor links
+  const handleNavClick = (e, path) => {
+    if (path.includes('#')) {
+      e.preventDefault();
+      const targetId = path.split('#')[1];
+
+      const scrollToElement = () => {
+        const el = document.getElementById(targetId);
+        if (el) {
+          const yOffset = -90; // offset for floating navbar height
+          const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+          window.scrollTo({ top: y, behavior: 'smooth' });
+          setActiveSection(targetId);
+        }
+      };
+
+      if (location.pathname !== '/') {
+        navigate('/');
+        setTimeout(scrollToElement, 200);
+      } else {
+        scrollToElement();
+      }
+      setIsOpen(false);
+    }
+  };
+
   const navLinks = isAuthenticated
     ? [
         { name: 'Dashboard', path: '/dashboard', icon: '📊' },
@@ -48,15 +94,17 @@ export default function Navbar() {
         { name: 'Applications', path: '/applications', icon: '🚀' },
       ]
     : [
-        { name: 'Features', path: '/#features', icon: '⚡' },
-        { name: 'How It Works', path: '/#how-it-works', icon: '💡' },
+        { name: 'How It Works', path: '/#how-it-works', sectionId: 'how-it-works', icon: '💡' },
+        { name: 'Features', path: '/#features', sectionId: 'features', icon: '⚡' },
         { name: 'Browse Jobs', path: '/jobs', icon: '🔍' },
         { name: 'Extension', path: '/extension', icon: '🧩' },
       ];
 
-  const isActive = (path) => {
-    if (path.startsWith('/#')) return false;
-    return location.pathname === path;
+  const isActive = (link) => {
+    if (link.sectionId) {
+      return location.pathname === '/' && activeSection === link.sectionId;
+    }
+    return location.pathname === link.path;
   };
 
   return (
@@ -113,12 +161,13 @@ export default function Navbar() {
               {/* 2. Center Navigation Tabs with Animated Spring Underlay */}
               <div className="hidden lg:flex items-center gap-1 bg-surface-900/60 p-1.5 rounded-xl border border-white/5 shadow-inner">
                 {navLinks.map((link) => {
-                  const active = isActive(link.path);
+                  const active = isActive(link);
                   return (
                     <Link
                       key={link.name}
                       to={link.path}
-                      className={`relative px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 ${
+                      onClick={(e) => handleNavClick(e, link.path)}
+                      className={`relative px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
                         active
                           ? 'text-white'
                           : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
@@ -263,7 +312,7 @@ export default function Navbar() {
               <div className="flex md:hidden items-center gap-2">
                 <button
                   onClick={() => setShowAiModal(true)}
-                  className="px-2.5 py-1 rounded-lg bg-primary-500/20 text-primary-300 border border-primary-500/30 text-xs font-bold flex items-center gap-1.5"
+                  className="px-2.5 py-1 rounded-lg bg-primary-500/20 text-primary-300 border border-primary-500/30 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   <span>AI</span>
@@ -271,7 +320,7 @@ export default function Navbar() {
 
                 <button
                   onClick={() => setIsOpen(!isOpen)}
-                  className="p-2 rounded-lg bg-surface-900 border border-white/10 text-gray-300 hover:text-white transition-colors"
+                  className="p-2 rounded-lg bg-surface-900 border border-white/10 text-gray-300 hover:text-white transition-colors cursor-pointer"
                   aria-label="Toggle navigation menu"
                 >
                   <svg className="h-5 w-5" stroke="currentColor" fill="none" viewBox="0 0 24 24">
@@ -301,9 +350,9 @@ export default function Navbar() {
                       <Link
                         key={link.name}
                         to={link.path}
-                        onClick={() => setIsOpen(false)}
+                        onClick={(e) => handleNavClick(e, link.path)}
                         className={`flex items-center justify-between p-2.5 rounded-xl text-sm font-medium transition-colors ${
-                          isActive(link.path)
+                          isActive(link)
                             ? 'bg-primary-500/15 text-primary-300 border border-primary-500/30'
                             : 'text-gray-300 hover:bg-white/5 hover:text-white'
                         }`}
@@ -332,7 +381,7 @@ export default function Navbar() {
                           </Link>
                           <button
                             onClick={handleLogout}
-                            className="w-full flex items-center gap-2.5 p-2.5 rounded-xl text-sm text-red-400 hover:bg-red-500/10 text-left"
+                            className="w-full flex items-center gap-2.5 p-2.5 rounded-xl text-sm text-red-400 hover:bg-red-500/10 text-left cursor-pointer"
                           >
                             <span>🚪</span> Sign Out
                           </button>

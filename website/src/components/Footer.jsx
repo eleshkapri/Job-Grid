@@ -32,8 +32,38 @@ export default function Footer() {
           <div>
             <h3 className="text-xs font-bold text-gray-300 tracking-wider uppercase mb-4">Product</h3>
             <ul className="space-y-3">
-              <li><a href="#features" className="text-gray-400 hover:text-white transition-colors text-sm">Features</a></li>
-              <li><a href="#how-it-works" className="text-gray-400 hover:text-white transition-colors text-sm">How It Works</a></li>
+              <li>
+                <button
+                  onClick={() => {
+                    const el = document.getElementById('features');
+                    if (el) {
+                      const y = el.getBoundingClientRect().top + window.pageYOffset - 90;
+                      window.scrollTo({ top: y, behavior: 'smooth' });
+                    } else {
+                      window.location.href = '/#features';
+                    }
+                  }}
+                  className="text-gray-400 hover:text-white transition-colors text-sm cursor-pointer"
+                >
+                  Features
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => {
+                    const el = document.getElementById('how-it-works');
+                    if (el) {
+                      const y = el.getBoundingClientRect().top + window.pageYOffset - 90;
+                      window.scrollTo({ top: y, behavior: 'smooth' });
+                    } else {
+                      window.location.href = '/#how-it-works';
+                    }
+                  }}
+                  className="text-gray-400 hover:text-white transition-colors text-sm cursor-pointer"
+                >
+                  How It Works
+                </button>
+              </li>
               <li><Link to="/extension" className="text-gray-400 hover:text-white transition-colors text-sm">Chrome Extension</Link></li>
               <li><Link to="/jobs" className="text-gray-400 hover:text-white transition-colors text-sm">Browse Jobs</Link></li>
             </ul>
