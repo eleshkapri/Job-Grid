@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @theme {
+  --color-primary-300: #a5b4fc;
   --color-primary-400: #818cf8;
   --color-primary-500: #6366f1;
   --color-primary-600: #4f46e5;
@@ -9,47 +10,61 @@
   --color-surface-900: #13131f;
   --color-surface-950: #0a0a10;
   
-  --font-sans: 'Inter', sans-serif;
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   
-  --animate-fade-in: fade-in 0.5s ease-out forwards;
-  --animate-slide-up: slide-up 0.5s ease-out forwards;
+  --animate-fade-in: fade-in 0.4s ease-out forwards;
+  --animate-slide-up: slide-up 0.4s ease-out forwards;
+}
+
+/* Global mobile-first responsive viewport safeguards */
+html, body {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+  scroll-behavior: smooth;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-primary-600 hover:bg-primary-500 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 shadow-lg shadow-primary-500/20 active:scale-95 text-center cursor-pointer;
+    @apply bg-primary-600 hover:bg-primary-500 text-white font-semibold py-2.5 px-4 sm:px-5 rounded-xl transition-all duration-200 shadow-lg shadow-primary-500/20 active:scale-95 text-center cursor-pointer inline-flex items-center justify-center text-sm sm:text-base;
   }
   
   .btn-secondary {
-    @apply bg-surface-800 hover:bg-surface-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 border border-white/10 active:scale-95 text-center cursor-pointer;
+    @apply bg-surface-800/90 hover:bg-surface-700 text-white font-medium py-2.5 px-4 sm:px-5 rounded-xl transition-all duration-200 border border-white/10 active:scale-95 text-center cursor-pointer inline-flex items-center justify-center text-sm sm:text-base;
   }
   
   .btn-ghost {
-    @apply hover:bg-white/10 text-gray-300 hover:text-white font-medium py-2 px-4 rounded-lg transition-colors active:scale-95 text-center cursor-pointer;
+    @apply hover:bg-white/10 text-gray-300 hover:text-white font-medium py-2 px-3 sm:px-4 rounded-xl transition-colors active:scale-95 text-center cursor-pointer inline-flex items-center justify-center text-xs sm:text-sm;
   }
   
   .card-glass {
-    @apply bg-surface-900/60 backdrop-blur-md border border-white/10 rounded-xl shadow-xl transition-all duration-300;
+    @apply bg-surface-900/70 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl transition-all duration-300;
   }
   
   .input-field {
-    @apply w-full bg-surface-950 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all;
+    @apply w-full bg-surface-950 border border-white/10 rounded-xl px-3.5 sm:px-4 py-2.5 text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all;
   }
   
   .badge-primary {
-    @apply bg-primary-500/20 text-primary-400 px-2.5 py-0.5 rounded-full text-xs font-medium border border-primary-500/20;
+    @apply bg-primary-500/20 text-primary-400 px-2.5 py-0.5 rounded-full text-xs font-semibold border border-primary-500/30 whitespace-nowrap;
   }
   
   .badge-success {
-    @apply bg-green-500/20 text-green-400 px-2.5 py-0.5 rounded-full text-xs font-medium border border-green-500/20;
+    @apply bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full text-xs font-semibold border border-emerald-500/30 whitespace-nowrap;
   }
   
   .badge-warning {
-    @apply bg-yellow-500/20 text-yellow-400 px-2.5 py-0.5 rounded-full text-xs font-medium border border-yellow-500/20;
+    @apply bg-amber-500/20 text-amber-300 px-2.5 py-0.5 rounded-full text-xs font-semibold border border-amber-500/30 whitespace-nowrap;
   }
   
   .badge-danger {
-    @apply bg-red-500/20 text-red-400 px-2.5 py-0.5 rounded-full text-xs font-medium border border-red-500/20;
+    @apply bg-rose-500/20 text-rose-300 px-2.5 py-0.5 rounded-full text-xs font-semibold border border-rose-500/30 whitespace-nowrap;
   }
   
   .gradient-text {
@@ -61,13 +76,29 @@
   }
 }
 
+/* Custom scrollbars for clean responsive UI */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0a10;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2a3f;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #4f46e5;
+}
+
 @keyframes fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
 @keyframes slide-up {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
 }
 

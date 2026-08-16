@@ -71,38 +71,39 @@ export default function DemoShowcase() {
       <div className="relative card-glass rounded-3xl border border-white/15 bg-surface-900/95 backdrop-blur-2xl shadow-2xl overflow-hidden">
         
         {/* macOS Window Title Bar */}
-        <div className="px-6 py-4 border-b border-white/10 bg-white/[0.03] flex items-center justify-between">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-white/10 bg-white/[0.03] flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-red-500/80 border border-red-600/40" />
-            <div className="w-3 h-3 rounded-full bg-yellow-500/80 border border-yellow-600/40" />
-            <div className="w-3 h-3 rounded-full bg-green-500/80 border border-green-600/40" />
-            <span className="ml-3 text-xs font-mono text-gray-400 font-medium hidden sm:inline">
-              jobgrid-live-demo-v2.mp4 · Interactive Preview
+            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-red-500/80 border border-red-600/40" />
+            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-yellow-500/80 border border-yellow-600/40" />
+            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-green-500/80 border border-green-600/40" />
+            <span className="ml-2 sm:ml-3 text-[11px] sm:text-xs font-mono text-gray-400 font-medium truncate max-w-[160px] sm:max-w-none">
+              jobgrid-demo-v2.6 · Interactive Preview
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <button
               onClick={() => setIsPlaying(!isPlaying)}
-              className="px-3 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-semibold text-gray-300 transition-colors flex items-center gap-1.5 cursor-pointer border border-white/10"
+              className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-semibold text-gray-300 transition-colors flex items-center gap-1 cursor-pointer border border-white/10"
             >
               <span>{isPlaying ? '⏸ Pause' : '▶ Play'}</span>
             </button>
-            <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+            <span className="text-[10px] sm:text-[11px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-              Live Demo
+              <span className="hidden sm:inline">Live Demo</span>
+              <span className="sm:hidden">Live</span>
             </span>
           </div>
         </div>
 
         {/* Step Navigation Pill Tabs */}
-        <div className="p-4 sm:p-6 border-b border-white/10 bg-surface-950/40">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="p-3 sm:p-6 border-b border-white/10 bg-surface-950/40">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
             {demoSteps.map((step, idx) => (
               <button
                 key={step.id}
                 onClick={() => handleTabChange(idx)}
-                className={`p-3.5 rounded-2xl text-left transition-all relative overflow-hidden cursor-pointer border ${
+                className={`p-3 sm:p-3.5 rounded-2xl text-left transition-all relative overflow-hidden cursor-pointer border ${
                   activeTab === idx
                     ? 'bg-surface-800/90 border-primary-500/60 shadow-lg shadow-primary-500/10'
                     : 'bg-white/[0.02] border-white/5 hover:bg-white/[0.05] hover:border-white/15'
@@ -116,13 +117,13 @@ export default function DemoShowcase() {
                   />
                 )}
 
-                <div className="flex items-center gap-3">
-                  <span className="text-xl p-2 rounded-xl bg-white/5 shrink-0">{step.icon}</span>
-                  <div className="truncate">
-                    <div className={`text-xs font-bold ${activeTab === idx ? 'text-white' : 'text-gray-400'}`}>
+                <div className="flex items-center gap-2.5 sm:gap-3">
+                  <span className="text-lg sm:text-xl p-1.5 sm:p-2 rounded-xl bg-white/5 shrink-0">{step.icon}</span>
+                  <div className="min-w-0 flex-1">
+                    <div className={`text-xs font-bold truncate ${activeTab === idx ? 'text-white' : 'text-gray-400'}`}>
                       {step.title}
                     </div>
-                    <div className="text-[11px] text-gray-500 truncate mt-0.5">
+                    <div className="text-[10px] sm:text-[11px] text-gray-500 truncate mt-0.5">
                       {step.subtitle}
                     </div>
                   </div>
@@ -133,164 +134,148 @@ export default function DemoShowcase() {
         </div>
 
         {/* Interactive Demo Viewport Display */}
-        <div className="p-6 sm:p-8 lg:p-10">
+        <div className="p-4 sm:p-8 lg:p-10">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
-              initial={{ opacity: 0, y: 15 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.35 }}
-              className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.3 }}
+              className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center"
             >
               {/* Left Details */}
-              <div className="lg:col-span-5 space-y-5">
-                <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r ${currentStep.accent} text-white shadow-md`}>
+              <div className="lg:col-span-5 space-y-4 sm:space-y-5">
+                <span className={`inline-block px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold bg-gradient-to-r ${currentStep.accent} text-white shadow-md`}>
                   {currentStep.badge}
                 </span>
 
-                <h3 className="text-2xl sm:text-3xl font-extrabold text-white leading-tight">
+                <h3 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white leading-tight">
                   {currentStep.subtitle}
                 </h3>
 
-                <p className="text-gray-300 text-sm leading-relaxed">
+                <p className="text-gray-300 text-xs sm:text-sm leading-relaxed">
                   {currentStep.description}
                 </p>
 
                 {/* Metrics Badges */}
-                <div className="grid grid-cols-3 gap-3 pt-3">
+                <div className="grid grid-cols-3 gap-2 sm:gap-3 pt-2">
                   {Object.entries(currentStep.metrics).map(([key, val]) => (
-                    <div key={key} className="p-3 rounded-xl bg-white/[0.03] border border-white/10 text-center">
-                      <div className="text-xs font-bold text-white truncate">{val}</div>
-                      <div className="text-[10px] text-gray-400 uppercase tracking-wider mt-0.5 font-medium">{key}</div>
+                    <div key={key} className="p-2.5 sm:p-3 rounded-xl bg-surface-950/60 border border-white/5 text-center">
+                      <div className="text-[10px] text-gray-400 uppercase font-mono">{key}</div>
+                      <div className="text-xs sm:text-sm font-bold text-white mt-0.5 truncate">{val}</div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Right: Interactive High-Fidelity Simulation Visual */}
-              <div className="lg:col-span-7">
-                <div className="relative rounded-2xl bg-surface-950 border border-white/15 p-5 shadow-2xl overflow-hidden min-h-[300px] flex flex-col justify-between">
-                  
-                  {/* Decorative Header */}
-                  <div className="flex items-center justify-between pb-4 border-b border-white/10 text-xs text-gray-400">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                      <span className="font-mono text-emerald-300 text-[11px]">AUTOPILOT RUNNING</span>
+              {/* Right Interactive Simulation Canvas */}
+              <div className="lg:col-span-7 bg-surface-950 rounded-2xl border border-white/10 p-4 sm:p-6 shadow-inner relative overflow-hidden min-h-[260px] sm:min-h-[320px] flex flex-col justify-between">
+                
+                {/* Visual Simulation for Step 0: Extension Form Autofill */}
+                {activeTab === 0 && (
+                  <div className="space-y-3 sm:space-y-4 animate-fade-in text-xs sm:text-sm">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-md bg-blue-600 flex items-center justify-center text-white font-bold text-xs shrink-0">in</span>
+                        <span className="font-semibold text-white truncate text-xs sm:text-sm">Senior React Developer · Easy Apply</span>
+                      </div>
+                      <span className="badge-success text-[10px] sm:text-xs">Detected</span>
                     </div>
-                    <span className="font-mono text-[11px] text-gray-500">Target: Greenhouse / LinkedIn</span>
+
+                    <div className="space-y-2 font-mono text-[11px] sm:text-xs text-gray-300">
+                      <div className="flex justify-between p-2 rounded-lg bg-surface-900 border border-white/5 items-center">
+                        <span className="text-gray-400">Full Name:</span>
+                        <span className="text-emerald-400 font-semibold truncate ml-2">✓ Verified Profile</span>
+                      </div>
+                      <div className="flex justify-between p-2 rounded-lg bg-surface-900 border border-white/5 items-center">
+                        <span className="text-gray-400">Resume Attached:</span>
+                        <span className="text-emerald-400 font-semibold truncate ml-2">✓ Master_Resume.pdf</span>
+                      </div>
+                      <div className="flex justify-between p-2 rounded-lg bg-surface-900 border border-white/5 items-center">
+                        <span className="text-gray-400">Skills Matching:</span>
+                        <span className="text-emerald-400 font-semibold truncate ml-2">✓ React, TS, Tailwind, Node</span>
+                      </div>
+                    </div>
+
+                    <div className="pt-2 flex items-center justify-between">
+                      <span className="text-[10px] text-gray-500">Auto-filled in 420ms</span>
+                      <button className="btn-primary py-1.5 px-3 sm:px-4 text-xs">
+                        🚀 Submit Application
+                      </button>
+                    </div>
                   </div>
+                )}
 
-                  {/* Dynamic Simulation Content by Step */}
-                  {activeTab === 0 && (
-                    <div className="space-y-3 py-4 animate-fade-in">
-                      <div className="flex items-center justify-between p-3 rounded-xl bg-primary-500/10 border border-primary-500/30">
-                        <div className="flex items-center gap-3">
-                          <span className="text-2xl">⚡</span>
-                          <div>
-                            <div className="text-xs font-bold text-white">1-Click AutoApply Extension</div>
-                            <div className="text-[11px] text-primary-300">Target Field: Easy Apply Form Detected</div>
-                          </div>
-                        </div>
-                        <span className="px-2.5 py-1 rounded-md bg-primary-600 text-[10px] font-bold text-white animate-pulse">
-                          Autofilling...
-                        </span>
+                {/* Visual Simulation for Step 1: Real-time ATS Board Fetching */}
+                {activeTab === 1 && (
+                  <div className="space-y-3 animate-fade-in text-xs sm:text-sm">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-purple-400 animate-ping shrink-0" />
+                        <span className="font-semibold text-white text-xs sm:text-sm">Live ATS Board Stream</span>
                       </div>
+                      <span className="text-[10px] sm:text-xs font-mono text-gray-400">6 Boards Active</span>
+                    </div>
 
-                      <div className="grid grid-cols-2 gap-3 text-xs">
-                        <div className="p-2.5 rounded-lg bg-surface-900 border border-white/10">
-                          <span className="text-gray-500 block text-[10px]">CANDIDATE NAME</span>
-                          <span className="text-white font-mono font-medium">Elesh Kapri</span>
+                    <div className="space-y-2">
+                      <div className="p-2.5 rounded-xl bg-surface-900 border border-white/5 flex items-center justify-between">
+                        <div className="truncate mr-2">
+                          <div className="font-bold text-white text-xs truncate">Software Engineer I</div>
+                          <div className="text-[11px] text-gray-400">Stripe · San Francisco / Remote</div>
                         </div>
-                        <div className="p-2.5 rounded-lg bg-surface-900 border border-white/10">
-                          <span className="text-gray-500 block text-[10px]">EMAIL ADDRESS</span>
-                          <span className="text-white font-mono font-medium">elesh@jobgrid.dev</span>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0">Greenhouse</span>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-surface-900 border border-white/5 flex items-center justify-between">
+                        <div className="truncate mr-2">
+                          <div className="font-bold text-white text-xs truncate">Frontend Engineer (Design)</div>
+                          <div className="text-[11px] text-gray-400">Linear · Remote (Global)</div>
                         </div>
-                        <div className="p-2.5 rounded-lg bg-surface-900 border border-white/10">
-                          <span className="text-gray-500 block text-[10px]">TARGET LOCATION</span>
-                          <span className="text-accent-300 font-mono font-medium">Bangalore / Remote</span>
-                        </div>
-                        <div className="p-2.5 rounded-lg bg-surface-900 border border-white/10">
-                          <span className="text-gray-500 block text-[10px]">ATTACHED RESUME</span>
-                          <span className="text-emerald-400 font-mono font-medium">✓ Resume-2026.pdf</span>
-                        </div>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30 shrink-0">Ashby</span>
                       </div>
                     </div>
-                  )}
 
-                  {activeTab === 1 && (
-                    <div className="space-y-2.5 py-4 animate-fade-in">
-                      <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/10 flex items-center justify-between">
-                        <div className="flex items-center gap-2.5">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Greenhouse</span>
-                          <span className="text-xs font-semibold text-white">Stripe · Frontend Engineer</span>
-                        </div>
-                        <span className="text-[11px] text-gray-400">San Francisco, CA</span>
-                      </div>
-
-                      <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/10 flex items-center justify-between">
-                        <div className="flex items-center gap-2.5">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-400 border border-purple-500/30">Ashby</span>
-                          <span className="text-xs font-semibold text-white">Linear · React Engineer</span>
-                        </div>
-                        <span className="text-[11px] text-gray-400">Remote Only</span>
-                      </div>
-
-                      <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/10 flex items-center justify-between">
-                        <div className="flex items-center gap-2.5">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">Lever</span>
-                          <span className="text-xs font-semibold text-white">Spotify · Full Stack Developer</span>
-                        </div>
-                        <span className="text-[11px] text-gray-400">New York, NY</span>
-                      </div>
+                    <div className="pt-1 text-center text-[10px] sm:text-xs text-accent-400 font-semibold">
+                      ✓ Direct application endpoint generated automatically
                     </div>
-                  )}
-
-                  {activeTab === 2 && (
-                    <div className="space-y-3 py-4 animate-fade-in">
-                      <div className="grid grid-cols-4 gap-2 text-center text-xs">
-                        <div className="p-2 rounded-lg bg-primary-500/10 border border-primary-500/30">
-                          <div className="text-base font-bold text-white">12</div>
-                          <div className="text-[10px] text-gray-400">Applied</div>
-                        </div>
-                        <div className="p-2 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
-                          <div className="text-base font-bold text-yellow-400">4</div>
-                          <div className="text-[10px] text-gray-400">Interview</div>
-                        </div>
-                        <div className="p-2 rounded-lg bg-green-500/10 border border-green-500/30">
-                          <div className="text-base font-bold text-green-400">2</div>
-                          <div className="text-[10px] text-gray-400">Offer</div>
-                        </div>
-                        <div className="p-2 rounded-lg bg-purple-500/10 border border-purple-500/30">
-                          <div className="text-base font-bold text-purple-400">100%</div>
-                          <div className="text-[10px] text-gray-400">Live Sync</div>
-                        </div>
-                      </div>
-
-                      <div className="p-3 rounded-xl bg-surface-900 border border-white/10 flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-2.5">
-                          <span className="text-base">🎉</span>
-                          <div>
-                            <span className="font-semibold text-white">Google · Frontend Specialist</span>
-                            <span className="text-gray-500 block text-[10px]">Status changed to "Interview"</span>
-                          </div>
-                        </div>
-                        <span className="badge badge-warning text-[10px]">Scheduled</span>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Footer Status */}
-                  <div className="pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-gray-500">
-                    <span>Frame: 60 FPS · Hardware Accelerated</span>
-                    <span className="text-primary-400 font-mono">Status: Connected to SQLite Engine</span>
                   </div>
+                )}
 
-                </div>
+                {/* Visual Simulation for Step 2: Central SQLite Database Sync */}
+                {activeTab === 2 && (
+                  <div className="space-y-3 animate-fade-in text-xs sm:text-sm">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                      <span className="font-semibold text-white text-xs sm:text-sm">Live SQLite Database Stream</span>
+                      <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                        SYNCED
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                      <div className="p-3 rounded-xl bg-surface-900 border border-white/5">
+                        <div className="text-[10px] text-gray-400 font-mono">STATUS</div>
+                        <div className="text-xs sm:text-sm font-bold text-primary-300 mt-1">Applied & Logged</div>
+                      </div>
+                      <div className="p-3 rounded-xl bg-surface-900 border border-white/5">
+                        <div className="text-[10px] text-gray-400 font-mono">ENCRYPTION</div>
+                        <div className="text-xs sm:text-sm font-bold text-emerald-400 mt-1">Local & Private</div>
+                      </div>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-primary-500/10 border border-primary-500/20 text-center">
+                      <span className="text-xs text-primary-300 font-semibold">
+                        📊 Dashboard and tracker update automatically with zero page reload
+                      </span>
+                    </div>
+                  </div>
+                )}
+
               </div>
             </motion.div>
           </AnimatePresence>
         </div>
+
       </div>
     </div>
   );

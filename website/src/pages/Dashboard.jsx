@@ -56,24 +56,24 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8 animate-fade-in">
+      <div className="space-y-6 sm:space-y-8 animate-fade-in">
         {/* Welcome */}
         <div>
-          <h1 className="text-3xl font-bold text-white">Welcome back, {(user?.name || 'Candidate').split(' ')[0]} 👋</h1>
-          <p className="text-surface-100/60 mt-1">Here's your live application activity overview</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white">Welcome back, {(user?.name || 'Candidate').split(' ')[0]} 👋</h1>
+          <p className="text-surface-100/60 text-xs sm:text-sm mt-1">Here's your live application activity overview</p>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
           {stats.map((stat, i) => (
-            <div key={stat.label} className={`card-glass animate-slide-up stagger-${i + 1}`}>
+            <div key={stat.label} className={`card-glass p-5 animate-slide-up stagger-${i + 1}`}>
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-surface-100/50 text-sm font-medium">{stat.label}</p>
-                  <p className="text-3xl font-bold text-white mt-2">{stat.value}</p>
+                  <p className="text-surface-100/50 text-xs sm:text-sm font-medium">{stat.label}</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-white mt-1 sm:mt-2">{stat.value}</p>
                   <p className="text-xs text-accent-400 mt-1">{stat.trend}</p>
                 </div>
-                <span className="text-2xl">{stat.icon}</span>
+                <span className="text-2xl sm:text-3xl">{stat.icon}</span>
               </div>
               <div className={`h-1 mt-4 rounded-full bg-gradient-to-r ${stat.color} opacity-60`} />
             </div>
@@ -81,89 +81,116 @@ export default function Dashboard() {
         </div>
 
         {/* Recent Applications */}
-        <div className="card-glass animate-slide-up stagger-3">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-white">Recent Applications</h2>
-            <Link to="/applications" className="btn-ghost text-sm">View All →</Link>
+        <div className="card-glass animate-slide-up stagger-3 overflow-hidden">
+          <div className="p-4 sm:p-6 flex items-center justify-between border-b border-white/10">
+            <h2 className="text-lg sm:text-xl font-semibold text-white">Recent Applications</h2>
+            <Link to="/applications" className="btn-ghost text-xs sm:text-sm">View All →</Link>
           </div>
 
           {loading ? (
             <div className="py-8 text-center text-gray-400 text-sm">Loading your activity...</div>
           ) : recentApps.length === 0 ? (
-            <div className="py-12 text-center text-gray-400">
+            <div className="py-12 text-center text-gray-400 p-4">
               <div className="text-4xl mb-3">🚀</div>
               <p className="text-white font-semibold mb-1">No applications tracked yet</p>
               <p className="text-xs text-gray-400 mb-4">Start browsing jobs or launch search to auto-apply and track!</p>
               <Link to="/jobs" className="btn-primary text-xs py-2 px-4">Browse Jobs Now</Link>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="text-left text-surface-100/50 text-sm border-b border-white/5">
-                    <th className="pb-3 font-medium">Job Title</th>
-                    <th className="pb-3 font-medium">Company</th>
-                    <th className="pb-3 font-medium">Status</th>
-                    <th className="pb-3 font-medium">Date</th>
-                    <th className="pb-3 font-medium">Source</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentApps.map((app) => {
-                    const st = (app.status || 'applied').toLowerCase();
-                    return (
-                      <tr key={app.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                        <td className="py-4 text-white font-medium">{app.job_title || app.title || app.role}</td>
-                        <td className="py-4 text-surface-100/70">{app.company}</td>
-                        <td className="py-4">
-                          <span className={statusStyles[st] || 'badge badge-primary'}>
-                            {st.charAt(0).toUpperCase() + st.slice(1)}
-                          </span>
-                        </td>
-                        <td className="py-4 text-surface-100/50 text-sm">
-                          {(app.applied_at || app.created_at || '').split('T')[0] || 'Today'}
-                        </td>
-                        <td className="py-4">
-                          <span className="badge badge-primary text-[10px]">{app.source || 'Manual'}</span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+            <>
+              {/* Mobile Card List (< 640px) */}
+              <div className="block sm:hidden divide-y divide-white/5">
+                {recentApps.map((app) => {
+                  const st = (app.status || 'applied').toLowerCase();
+                  return (
+                    <div key={app.id} className="p-4 space-y-2">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <div className="font-semibold text-white text-sm">{app.job_title || app.title || app.role}</div>
+                          <div className="text-xs text-surface-100/70">{app.company}</div>
+                        </div>
+                        <span className={statusStyles[st] || 'badge badge-primary text-[10px]'}>
+                          {st.charAt(0).toUpperCase() + st.slice(1)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-xs text-gray-400 pt-1 font-mono">
+                        <span>{(app.applied_at || app.created_at || '').split('T')[0] || 'Today'}</span>
+                        <span className="badge-primary text-[10px]">{app.source || 'Manual'}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Desktop Table (>= 640px) */}
+              <div className="hidden sm:block overflow-x-auto p-4 sm:p-6 pt-0">
+                <table className="w-full">
+                  <thead>
+                    <tr className="text-left text-surface-100/50 text-xs sm:text-sm border-b border-white/5">
+                      <th className="pb-3 font-medium">Job Title</th>
+                      <th className="pb-3 font-medium">Company</th>
+                      <th className="pb-3 font-medium">Status</th>
+                      <th className="pb-3 font-medium">Date</th>
+                      <th className="pb-3 font-medium">Source</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentApps.map((app) => {
+                      const st = (app.status || 'applied').toLowerCase();
+                      return (
+                        <tr key={app.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                          <td className="py-4 text-white font-medium text-sm">{app.job_title || app.title || app.role}</td>
+                          <td className="py-4 text-surface-100/70 text-sm">{app.company}</td>
+                          <td className="py-4">
+                            <span className={statusStyles[st] || 'badge badge-primary text-xs'}>
+                              {st.charAt(0).toUpperCase() + st.slice(1)}
+                            </span>
+                          </td>
+                          <td className="py-4 text-surface-100/50 text-xs sm:text-sm font-mono">
+                            {(app.applied_at || app.created_at || '').split('T')[0] || 'Today'}
+                          </td>
+                          <td className="py-4">
+                            <span className="badge badge-primary text-[10px]">{app.source || 'Manual'}</span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
 
         {/* Quick Actions */}
         <div className="animate-slide-up stagger-4">
-          <h2 className="text-xl font-semibold text-white mb-4">Quick Actions</h2>
+          <h2 className="text-lg sm:text-xl font-semibold text-white mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Link to="/jobs" className="card-glass flex items-center gap-4 group">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-600 to-primary-400 flex items-center justify-center text-xl shrink-0">
+            <Link to="/jobs" className="card-glass p-4 sm:p-5 flex items-center gap-4 group">
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary-600 to-primary-400 flex items-center justify-center text-xl shrink-0">
                 🔍
               </div>
               <div>
-                <p className="font-semibold text-white group-hover:text-primary-400 transition-colors">Browse Jobs</p>
-                <p className="text-sm text-surface-100/50">Find new opportunities</p>
+                <p className="font-semibold text-white text-sm sm:text-base group-hover:text-primary-400 transition-colors">Browse Jobs</p>
+                <p className="text-xs sm:text-sm text-surface-100/50">Find new opportunities</p>
               </div>
             </Link>
-            <Link to="/profile" className="card-glass flex items-center gap-4 group">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-600 to-accent-400 flex items-center justify-center text-xl shrink-0">
+            <Link to="/profile" className="card-glass p-4 sm:p-5 flex items-center gap-4 group">
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-accent-600 to-accent-400 flex items-center justify-center text-xl shrink-0">
                 ✏️
               </div>
               <div>
-                <p className="font-semibold text-white group-hover:text-accent-400 transition-colors">Edit Profile</p>
-                <p className="text-sm text-surface-100/50">Update your details</p>
+                <p className="font-semibold text-white text-sm sm:text-base group-hover:text-accent-400 transition-colors">Edit Profile</p>
+                <p className="text-xs sm:text-sm text-surface-100/50">Update your details</p>
               </div>
             </Link>
-            <Link to="/applications" className="card-glass flex items-center gap-4 group">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 to-pink-400 flex items-center justify-center text-xl shrink-0">
+            <Link to="/applications" className="card-glass p-4 sm:p-5 flex items-center gap-4 group">
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-purple-600 to-pink-400 flex items-center justify-center text-xl shrink-0">
                 📊
               </div>
               <div>
-                <p className="font-semibold text-white group-hover:text-purple-400 transition-colors">View Tracker</p>
-                <p className="text-sm text-surface-100/50">Track job responses</p>
+                <p className="font-semibold text-white text-sm sm:text-base group-hover:text-purple-400 transition-colors">View Tracker</p>
+                <p className="text-xs sm:text-sm text-surface-100/50">Track job responses</p>
               </div>
             </Link>
           </div>

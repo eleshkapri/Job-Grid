@@ -119,99 +119,98 @@ export default function AiCoreSyncModal({ isOpen, onClose }) {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 overflow-y-auto">
         <motion.div
-          initial={{ opacity: 0, scale: 0.92, y: 20 }}
+          initial={{ opacity: 0, scale: 0.94, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.92, y: 20 }}
-          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          className="card-glass w-full max-w-2xl bg-surface-900 border border-primary-500/40 rounded-3xl shadow-2xl shadow-primary-500/20 overflow-hidden my-8"
+          exit={{ opacity: 0, scale: 0.94, y: 15 }}
+          transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          className="card-glass w-full max-w-2xl bg-surface-900 border border-primary-500/40 rounded-2xl sm:rounded-3xl shadow-2xl shadow-primary-500/20 overflow-hidden my-auto max-h-[90vh] flex flex-col"
         >
           {/* Modal Header */}
-          <div className="p-6 border-b border-white/10 bg-surface-950/60 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-purple-500 flex items-center justify-center text-xl shadow-lg shadow-primary-500/30">
+          <div className="p-4 sm:p-6 border-b border-white/10 bg-surface-950/60 flex items-center justify-between shrink-0">
+            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-primary-500 to-purple-500 flex items-center justify-center text-lg sm:text-xl shadow-lg shadow-primary-500/30 shrink-0">
                 🤖
               </div>
-              <div>
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  AI Core Sync Engine
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono">
-                    v2.6 Online
+              <div className="min-w-0">
+                <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2 truncate">
+                  <span>AI Core Sync Engine</span>
+                  <span className="text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono">
+                    v2.6 Live
                   </span>
                 </h3>
-                <p className="text-xs text-gray-400">Intelligent ATS Matching, Keyword Analyzer & Vector Sync</p>
+                <p className="text-[11px] sm:text-xs text-gray-400 truncate">Intelligent ATS Matching, Keyword Analyzer & Vector Sync</p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors cursor-pointer"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors cursor-pointer shrink-0 ml-2"
             >
               ✕
             </button>
           </div>
 
           {/* Navigation Sub-tabs */}
-          <div className="px-6 pt-4 border-b border-white/10 bg-surface-950/30 flex gap-2 overflow-x-auto">
+          <div className="px-4 sm:px-6 pt-3 border-b border-white/10 bg-surface-950/30 flex gap-2 overflow-x-auto shrink-0">
             <button
               onClick={() => setActiveTab('match')}
-              className={`px-4 py-2.5 rounded-t-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer border-b-2 ${
+              className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-t-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap border-b-2 ${
                 activeTab === 'match'
                   ? 'border-primary-500 text-primary-300 bg-white/5'
                   : 'border-transparent text-gray-400 hover:text-white'
               }`}
             >
-              <span>🎯</span> ATS Match Scanner
+              <span>⚡</span> ATS Match Score
             </button>
             <button
               onClick={() => setActiveTab('optimize')}
-              className={`px-4 py-2.5 rounded-t-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer border-b-2 ${
+              className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-t-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap border-b-2 ${
                 activeTab === 'optimize'
-                  ? 'border-primary-500 text-primary-300 bg-white/5'
+                  ? 'border-purple-500 text-purple-300 bg-white/5'
                   : 'border-transparent text-gray-400 hover:text-white'
               }`}
             >
-              <span>⚡</span> 1-Click Profile Optimizer
+              <span>✨</span> 1-Click Optimize
             </button>
             <button
               onClick={() => setActiveTab('diagnostics')}
-              className={`px-4 py-2.5 rounded-t-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer border-b-2 ${
+              className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-t-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap border-b-2 ${
                 activeTab === 'diagnostics'
-                  ? 'border-primary-500 text-primary-300 bg-white/5'
+                  ? 'border-emerald-500 text-emerald-300 bg-white/5'
                   : 'border-transparent text-gray-400 hover:text-white'
               }`}
             >
-              <span>📊</span> Live Neural Diagnostics
+              <span>📊</span> Live Diagnostics
             </button>
           </div>
 
-          {/* Modal Body Content */}
-          <div className="p-6 max-h-[70vh] overflow-y-auto space-y-6">
-
-            {/* TAB 1: MATCH SCANNER */}
+          {/* Modal Body Content with Scroll */}
+          <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4">
+            
+            {/* Tab 1: ATS Job Match Scanner */}
             {activeTab === 'match' && (
-              <div className="space-y-5 animate-fade-in">
-                <form onSubmit={handleRunMatchAnalysis} className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-4 animate-fade-in text-xs sm:text-sm">
+                <form onSubmit={handleRunMatchAnalysis} className="space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-gray-400 uppercase mb-1">Target Job Title</label>
+                      <label className="block text-[11px] font-semibold text-gray-400 uppercase mb-1">Target Job Title</label>
                       <input
                         type="text"
                         value={targetJob}
                         onChange={(e) => setTargetJob(e.target.value)}
-                        placeholder="e.g. Frontend Engineer (React)"
-                        className="input-field text-sm"
-                        required
+                        placeholder="e.g. Frontend Engineer"
+                        className="input-field text-xs sm:text-sm"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-gray-400 uppercase mb-1">Company</label>
+                      <label className="block text-[11px] font-semibold text-gray-400 uppercase mb-1">Company (Optional)</label>
                       <input
                         type="text"
                         value={targetCompany}
                         onChange={(e) => setTargetCompany(e.target.value)}
-                        placeholder="e.g. Stripe, Linear, Swiggy"
-                        className="input-field text-sm"
+                        placeholder="e.g. Stripe, Linear"
+                        className="input-field text-xs sm:text-sm"
                       />
                     </div>
                   </div>
@@ -219,171 +218,137 @@ export default function AiCoreSyncModal({ isOpen, onClose }) {
                   <button
                     type="submit"
                     disabled={analyzing}
-                    className="btn-primary w-full py-3 text-sm font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary-500/25"
+                    className="btn-primary w-full py-2.5 text-xs sm:text-sm font-semibold shadow-lg shadow-primary-500/25 disabled:opacity-50"
                   >
-                    {analyzing ? (
-                      <>
-                        <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                        Analyzing ATS Compatibility...
-                      </>
-                    ) : (
-                      <>
-                        <span>🚀</span> Run Instant Match & Keyword Analysis
-                      </>
-                    )}
+                    {analyzing ? 'Scanning Candidate Vector against ATS...' : 'Run ATS Match Analysis ⚡'}
                   </button>
                 </form>
 
-                {/* Analysis Results View */}
+                {/* Analysis Results Display */}
                 {analysisResult && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="p-5 rounded-2xl bg-surface-950 border border-primary-500/30 space-y-4"
-                  >
+                  <div className="mt-4 space-y-4 p-4 rounded-2xl bg-surface-950/70 border border-white/10 animate-slide-up">
                     {/* Score Bar */}
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
                       <div>
-                        <div className="text-xs text-gray-400 font-semibold uppercase">Compatibility Score</div>
-                        <div className="text-3xl font-extrabold text-white gradient-text bg-gradient-to-r from-emerald-400 to-primary-400">
-                          {analysisResult.matchScore}% Match
+                        <div className="text-xs text-gray-400 font-medium">ATS Match Score</div>
+                        <div className="text-2xl sm:text-3xl font-extrabold text-white">
+                          <span className={analysisResult.matchScore >= 80 ? 'text-emerald-400' : 'text-amber-400'}>
+                            {analysisResult.matchScore}%
+                          </span>
                         </div>
                       </div>
-                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                        ✓ ATS Ready
+                      <span className="badge-success text-xs sm:text-sm py-1 px-3">
+                        {analysisResult.matchScore >= 80 ? 'High ATS Pass Rate' : 'Moderate Match'}
                       </span>
                     </div>
 
                     {/* Matched & Missing Skills */}
-                    <div className="space-y-2">
-                      <div className="text-xs text-gray-400 font-semibold">Matched Keywords:</div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {analysisResult.matchedSkills?.map(s => (
-                          <span key={s} className="badge badge-success text-[11px]">✓ {s}</span>
-                        ))}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                      <div>
+                        <div className="text-[11px] font-bold text-emerald-400 uppercase mb-1.5">✓ Matched Keywords</div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {analysisResult.matchedSkills?.map((s) => (
+                            <span key={s} className="badge-success text-[10px] sm:text-xs">
+                              {s}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-
-                      {analysisResult.missingSkills?.length > 0 && (
-                        <>
-                          <div className="text-xs text-gray-400 font-semibold pt-1">Recommended Keywords to Boost Score:</div>
-                          <div className="flex flex-wrap gap-1.5">
-                            {analysisResult.missingSkills?.map(s => (
-                              <span key={s} className="badge badge-warning text-[11px]">+ {s}</span>
-                            ))}
-                          </div>
-                        </>
-                      )}
+                      <div>
+                        <div className="text-[11px] font-bold text-amber-400 uppercase mb-1.5">⚡ Recommended Additions</div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {analysisResult.missingSkills?.map((s) => (
+                            <span key={s} className="badge-warning text-[10px] sm:text-xs">
+                              +{s}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
                     </div>
 
                     {/* Tailored Cover Pitch */}
-                    <div className="pt-2">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-xs text-gray-400 font-semibold">Tailored Application Note:</span>
-                        <button
-                          onClick={copyPitchToClipboard}
-                          className="text-[11px] text-primary-400 hover:text-primary-300 font-medium transition-colors cursor-pointer"
-                        >
-                          {copiedPitch ? '✓ Copied to clipboard!' : '📋 Copy Note'}
-                        </button>
+                    {analysisResult.tailoredPitch && (
+                      <div className="pt-2 border-t border-white/5">
+                        <div className="flex justify-between items-center mb-1.5">
+                          <span className="text-[11px] font-bold text-gray-300 uppercase">AI Tailored Intro Pitch:</span>
+                          <button
+                            onClick={copyPitchToClipboard}
+                            className="text-[10px] text-primary-300 hover:text-white bg-primary-500/10 px-2 py-0.5 rounded border border-primary-500/20 cursor-pointer"
+                          >
+                            {copiedPitch ? '✓ Copied!' : '📋 Copy Pitch'}
+                          </button>
+                        </div>
+                        <p className="text-xs text-gray-300 bg-surface-900 p-3 rounded-xl border border-white/5 whitespace-pre-line leading-relaxed font-mono">
+                          {analysisResult.tailoredPitch}
+                        </p>
                       </div>
-                      <textarea
-                        readOnly
-                        value={analysisResult.tailoredPitch}
-                        className="w-full bg-surface-900 border border-white/10 rounded-xl p-3 text-xs text-gray-300 font-mono resize-none min-h-[90px]"
-                      />
-                    </div>
-                  </motion.div>
+                    )}
+                  </div>
                 )}
               </div>
             )}
 
-            {/* TAB 2: PROFILE OPTIMIZER */}
+            {/* Tab 2: Profile Optimizer */}
             {activeTab === 'optimize' && (
-              <div className="space-y-5 animate-fade-in">
-                <div className="p-4 rounded-2xl bg-surface-950 border border-white/10">
-                  <h4 className="text-sm font-bold text-white mb-1">1-Click ATS Profile Enhancement</h4>
-                  <p className="text-xs text-gray-400 leading-relaxed">
-                    Automatically enriches your candidate profile with high-ranking tech keywords, industry-standard headlines, and ATS-optimized descriptions.
-                  </p>
-                </div>
-
-                <div className="space-y-3">
-                  <label className="block text-xs font-semibold text-gray-400 uppercase">Target Specialization</label>
-                  <select
+              <div className="space-y-4 animate-fade-in text-xs sm:text-sm">
+                <div>
+                  <label className="block text-[11px] font-semibold text-gray-400 uppercase mb-1">Target Desired Role</label>
+                  <input
+                    type="text"
                     value={targetRole}
                     onChange={(e) => setTargetRole(e.target.value)}
-                    className="input-field text-sm"
-                  >
-                    <option value="Frontend Software Engineer">Frontend Software Engineer (React, TS, UI Architecture)</option>
-                    <option value="Full Stack Developer">Full Stack Developer (React, Node.js, SQLite, APIs)</option>
-                    <option value="Software Engineer Intern / New Grad">Software Engineer Intern / New Grad (Core CS, Web Dev)</option>
-                    <option value="Backend Developer">Backend Developer (Node.js, Express, Databases, Security)</option>
-                  </select>
+                    placeholder="e.g. Full Stack Engineer, React Specialist"
+                    className="input-field text-xs sm:text-sm"
+                  />
                 </div>
-
-                {optimizeMessage && (
-                  <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium animate-fade-in">
-                    {optimizeMessage}
-                  </div>
-                )}
 
                 <button
                   onClick={handleRunProfileOptimizer}
                   disabled={optimizing}
-                  className="btn-primary w-full py-3.5 text-sm font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary-500/25"
+                  className="btn-primary w-full py-2.5 text-xs sm:text-sm font-semibold shadow-lg shadow-primary-500/25 bg-gradient-to-r from-purple-600 to-primary-600 disabled:opacity-50"
                 >
-                  {optimizing ? (
-                    <>
-                      <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                      Optimizing and Syncing Profile...
-                    </>
-                  ) : (
-                    <>
-                      <span>✨</span> Apply & Synchronize ATS Optimization to Profile
-                    </>
-                  )}
+                  {optimizing ? 'Synchronizing & Optimizing Profile...' : 'Auto-Optimize Profile Headline & Skills 🚀'}
                 </button>
+
+                {optimizeMessage && (
+                  <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs animate-slide-up">
+                    {optimizeMessage}
+                  </div>
+                )}
               </div>
             )}
 
-            {/* TAB 3: DIAGNOSTICS */}
+            {/* Tab 3: Live Diagnostics */}
             {activeTab === 'diagnostics' && (
-              <div className="space-y-4 animate-fade-in">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+              <div className="space-y-3 animate-fade-in text-xs sm:text-sm">
+                <div className="grid grid-cols-2 gap-3">
                   <div className="p-3 rounded-xl bg-surface-950 border border-white/10">
-                    <div className="text-lg font-bold text-emerald-400">18ms</div>
-                    <div className="text-[10px] text-gray-400 uppercase font-semibold">Latency</div>
+                    <div className="text-[10px] text-gray-400 font-mono">NEURAL CORE</div>
+                    <div className="text-sm sm:text-base font-bold text-emerald-400 mt-1 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                      Active & Synced
+                    </div>
                   </div>
                   <div className="p-3 rounded-xl bg-surface-950 border border-white/10">
-                    <div className="text-lg font-bold text-primary-400">6 Portals</div>
-                    <div className="text-[10px] text-gray-400 uppercase font-semibold">ATS Bridges</div>
-                  </div>
-                  <div className="p-3 rounded-xl bg-surface-950 border border-white/10">
-                    <div className="text-lg font-bold text-purple-400">SQLite</div>
-                    <div className="text-[10px] text-gray-400 uppercase font-semibold">Vector Sync</div>
-                  </div>
-                  <div className="p-3 rounded-xl bg-surface-950 border border-white/10">
-                    <div className="text-lg font-bold text-yellow-400">AES-256</div>
-                    <div className="text-[10px] text-gray-400 uppercase font-semibold">Encryption</div>
+                    <div className="text-[10px] text-gray-400 font-mono">DATABASE LATENCY</div>
+                    <div className="text-sm sm:text-base font-bold text-primary-300 mt-1">
+                      0.8ms (Local SQLite)
+                    </div>
                   </div>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-surface-950 border border-white/10 space-y-2 text-xs">
-                  <div className="flex justify-between items-center py-1 border-b border-white/5">
-                    <span className="text-gray-400">Neural Engine Version</span>
-                    <span className="font-mono text-white font-semibold">{statusData?.engine || 'JobGrid AI Neural Core v2.6'}</span>
+                <div className="p-4 rounded-xl bg-surface-950 border border-white/10 space-y-2 font-mono text-xs">
+                  <div className="flex justify-between text-gray-400">
+                    <span>ATS Portals Connected:</span>
+                    <span className="text-white font-bold">6 (Greenhouse, Lever, Ashby, Workable, LinkedIn, Naukri)</span>
                   </div>
-                  <div className="flex justify-between items-center py-1 border-b border-white/5">
-                    <span className="text-gray-400">Vector Synchronization State</span>
-                    <span className="text-emerald-400 font-semibold">{statusData?.vectorSync || 'Active & Synchronized'}</span>
+                  <div className="flex justify-between text-gray-400">
+                    <span>Extension Sync Protocol:</span>
+                    <span className="text-white font-bold">Chrome Manifest V3 · Session Token</span>
                   </div>
-                  <div className="flex justify-between items-center py-1 border-b border-white/5">
-                    <span className="text-gray-400">Live ATS Connectors</span>
-                    <span className="text-primary-300 font-semibold">Greenhouse, Lever, Ashby, Workable, LinkedIn, Naukri</span>
-                  </div>
-                  <div className="flex justify-between items-center py-1">
-                    <span className="text-gray-400">Session Status</span>
-                    <span className="text-white font-semibold">{user ? `Authenticated as ${user.name}` : 'Guest Session (Local Mode)'}</span>
+                  <div className="flex justify-between text-gray-400">
+                    <span>Encryption Standard:</span>
+                    <span className="text-emerald-400 font-bold">JWT + Argon2 Hashing</span>
                   </div>
                 </div>
               </div>
@@ -391,13 +356,16 @@ export default function AiCoreSyncModal({ isOpen, onClose }) {
 
           </div>
 
-          {/* Footer Controls */}
-          <div className="p-4 border-t border-white/10 bg-surface-950/60 flex justify-end">
+          {/* Modal Footer */}
+          <div className="p-4 border-t border-white/10 bg-surface-950/80 flex justify-between items-center shrink-0">
+            <span className="text-[11px] text-gray-400">
+              ⚡ Local SQLite Engine Online
+            </span>
             <button
               onClick={onClose}
-              className="btn-secondary py-2 px-5 text-xs font-semibold cursor-pointer"
+              className="btn-secondary py-1.5 px-4 text-xs font-semibold cursor-pointer"
             >
-              Close Diagnostic
+              Close
             </button>
           </div>
         </motion.div>
