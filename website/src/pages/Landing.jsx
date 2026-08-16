@@ -137,9 +137,9 @@ export default function Landing() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="lg:col-span-5 relative flex items-center justify-center min-h-[320px] sm:min-h-[420px] lg:min-h-[540px] w-full"
+                className="lg:col-span-5 relative flex items-center justify-center h-[360px] sm:h-[440px] lg:h-[540px] w-full my-2 lg:my-0"
               >
-                <div className="w-full h-full relative">
+                <div className="w-full h-full relative flex items-center justify-center">
                   <HeroScene />
                   
                   {/* Floating Holographic Specular Tags */}
@@ -148,7 +148,7 @@ export default function Landing() {
                     initial={{ y: 15, opacity: 0 }}
                     animate={{ y: [0, -5, 0], opacity: 1 }}
                     transition={{ y: { repeat: Infinity, duration: 4, ease: "easeInOut" }, delay: 0.4 }}
-                    className="absolute top-2 sm:top-4 left-2 sm:left-4 card-glass px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-2xl border-primary-500/40 backdrop-blur-xl shadow-xl shadow-primary-500/15 flex items-center gap-2.5 cursor-pointer hover:border-primary-400 hover:scale-105 transition-all text-left z-30"
+                    className="absolute top-0 sm:top-2 left-0 sm:left-2 card-glass px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-2xl border-primary-500/40 backdrop-blur-xl shadow-xl shadow-primary-500/15 flex items-center gap-2.5 cursor-pointer hover:border-primary-400 hover:scale-105 transition-all text-left z-30"
                   >
                     <span className="text-xl sm:text-2xl">🤖</span>
                     <div>
